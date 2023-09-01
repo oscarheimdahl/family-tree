@@ -17,7 +17,7 @@ export function partnerinator(
 ) {
 	const newEdges: Edge[] = [];
 	// Add partner 1
-	newEdges.push({ from, to, length: 0.1, dashes: true });
+	newEdges.push({ from, to, length: 0.1, dashes: true, arrows: { to: false } });
 	edges.forEach((node) => {
 		if (node.from === from && node.to !== to)
 			// Add partner1 children

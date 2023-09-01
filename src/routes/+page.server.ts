@@ -1,15 +1,7 @@
+import type { Relative } from '$lib/types/types';
 import fs from 'fs';
 
 /** @type {import('./$types').PageLoad} */
-
-export interface Relative {
-	id: string;
-	firstname: string;
-	lastname: string;
-	childOf: string;
-	partnerTo: string;
-	description: string;
-}
 
 export function load({ params }) {
 	let data: string | undefined;

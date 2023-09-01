@@ -1,4 +1,5 @@
-import type { MyNode } from '../types/types';
+import type { MyNode } from '$lib/types/types';
+import { partnerColors } from './networkOptions';
 
 const partnerPairs: { from: string; to: string }[] = [];
 
@@ -6,10 +7,14 @@ export function getPartnerPairs() {
 	return partnerPairs;
 }
 
+function commonOptions(node: MyNode) {
+	return node;
+}
+
 export function partner(node: MyNode, from: string, hidePartners: boolean) {
-	node.color = { background: '#555', highlight: '#555', hover: '#555', border: '#555' };
+	node = commonOptions(node);
+	node.color = partnerColors;
 	node.hidden = hidePartners;
-	// @ts-ignore
 	node.partner = true;
 	partnerPairs.push({ from, to: node.id as string });
 
@@ -17,7 +22,13 @@ export function partner(node: MyNode, from: string, hidePartners: boolean) {
 }
 
 export function relative(node: MyNode) {
-	node.color = { background: '#3F52B6', highlight: '#3F52B6', hover: '#3F52B6', border: '#555' };
+	node = commonOptions(node);
+	if (typeof node.color === 'object') {
+		node.color.background = '#3F52B6';
+		node.color.hover = '#3F52B6';
+		node.color.highlight = '#3F52B6';
+		node.color.border = '#3F52B6';
+	}
 	// node.hidden = hidePartners;
 	// partnerPairs.push({ from, to: node.id as string });
 

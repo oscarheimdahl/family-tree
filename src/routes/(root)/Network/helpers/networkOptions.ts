@@ -1,12 +1,11 @@
 import type { Options } from 'vis-network';
-
-const relativeColor = '#FB5223';
+const relativeColor = '#0588D1';
 const partnerColor = '#3D3D52';
 
 export const networkOptions: Options = {
 	// configure: true,
 	layout: {
-		randomSeed: 1,
+		randomSeed: 2,
 		hierarchical: {
 			enabled: true,
 			direction: 'UD',

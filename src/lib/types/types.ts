@@ -8,7 +8,9 @@ export interface Relative {
 	id: string;
 	firstname: string;
 	lastname: string;
-	childOf: string;
-	partnerTo: string;
+	childof: string;
+	partnerto: string;
 	description: string;
+	birthyear?: number;
+	generation?: number;
 }

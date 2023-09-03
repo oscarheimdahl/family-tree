@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Options from './Options.svelte';
 	import { partnerinator } from './helpers/partnerinator';
 	import { onMount } from 'svelte';
 	import { networkOptions } from './helpers/networkOptions';
@@ -22,6 +23,7 @@
 		network = buildNetwork();
 		network.on('click', (e) => {
 			const nodeId = e.nodes[0];
+			// if (!nodeId) return;
 			selectedRelativeIdStore.set(nodeId);
 		});
 	});
@@ -29,18 +31,18 @@
 	function buildNetwork() {
 		if (!relatives) throw new Error('No relatives data');
 		nodes = new DataSet(
-			relatives?.map((relativeData) => {
+			relatives.map((relativeData) => {
 				const relativeNode = {
 					id: relativeData.id,
 					label: formatFullName(relativeData.firstname, relativeData.lastname),
-					level: 1
+					level: relativeData.generation
 				};
-				if (!relativeData.partnerTo) return relative(relativeNode);
-				return partner(relativeNode, relativeData.partnerTo, hidePartners);
+				if (!relativeData.partnerto) return relative(relativeNode);
+				return partner(relativeNode, relativeData.partnerto);
 			})
 		);
 		const edges: Edge[] = relatives.map((relativeData) => {
-			return { from: relativeData.childOf, to: relativeData.id };
+			return { from: relativeData.childof, to: relativeData.id };
 		});
 
 		getPartnerPairs().forEach(({ from, to }) => {
@@ -50,7 +52,15 @@
 		networkOptions.layout.hierarchical.enabled = hierarchyMode;
 		return new Network(container, { nodes, edges }, networkOptions);
 	}
+	function handleHidePartnerClick() {
+		hidePartners = !hidePartners;
+		const nodesToUpdate: MyNode[] = [];
+		nodes.forEach((node) => {
+			if (node.partner) nodesToUpdate.push({ id: node.id, hidden: hidePartners });
+		});
+		nodes.update(nodesToUpdate);
+	}
 </script>
 
 <div class="flex w-full h-full fade-in" bind:this={container} />
-<div class="text-white absolute top-0 left-0 bg-red-400">asd</div>
+<Options {handleHidePartnerClick} />

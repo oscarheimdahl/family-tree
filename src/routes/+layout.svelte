@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import '../app.css';
 	import { invalidate } from '$app/navigation';
-	import { supabaseStore } from '$lib/store/supabaseStore';
+	import { store } from '$lib/store';
 
 	export let data;
 
@@ -10,10 +10,11 @@
 	$: ({ supabase, session } = data);
 
 	onMount(() => {
-		supabaseStore.set(supabase);
+		store.update((prev) => ({ ...prev, supabaseClient: supabase, session }));
 		const {
 			data: { subscription }
 		} = supabase.auth.onAuthStateChange((event, _session) => {
+			store.update((prev) => ({ ...prev, supabaseClient: supabase, session: _session }));
 			if (_session?.expires_at !== session?.expires_at) {
 				invalidate('supabase:auth');
 			}
@@ -23,4 +24,9 @@
 	});
 </script>
 
+<h1
+	class="absolute z-10 left-1/2 rounded-b-lg -translate-x-1/2 text-center text-xl text-white py-2 px-4 bg-primary-light"
+>
+	Pettersson Family Tree
+</h1>
 <slot />

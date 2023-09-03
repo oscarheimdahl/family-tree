@@ -1,10 +1,16 @@
 <script lang="ts">
+	import Button from '$lib/components/Button.svelte';
 	import Gear from '$lib/icons/GearIcon.svelte';
-	import { supabaseStore, type SupabaseType } from '$lib/store/supabaseStore';
+	import { store, type SupabaseClientT } from '$lib/store';
+	import type { Session } from '@supabase/supabase-js';
 	export let handleHidePartnerClick: () => void;
 
-	let supabase: SupabaseType;
-	supabaseStore.subscribe((val) => (supabase = val));
+	let supabase: SupabaseClientT;
+	let session: Session | null;
+	store.subscribe((val) => {
+		if (val.supabaseClient) supabase = val.supabaseClient;
+		session = val.session;
+	});
 
 	async function handleLoginClick() {
 		const res = await supabase.auth.signInWithPassword({
@@ -15,21 +21,20 @@
 	}
 	async function handleLogoutClick() {
 		const res = await supabase.auth.signOut();
-		console.log(res);
+		store.update((prev) => ({ ...prev, session: null }));
 	}
 </script>
 
 <div
-	class="text-white absolute top-0 left-2 bg-primary-light flex flex-col rounded-b-xl p-2 gap-2 -translate-y-full hover:translate-y-0 transition-transform [&:has(button:focus)]:translate-y-0"
+	class="text-white absolute top-0 left-2 w-60 bg-primary-light flex flex-col items-center rounded-b-xl p-2 gap-2 -translate-y-full hover:translate-y-0 transition-transform [&:has(button:focus)]:translate-y-0"
 >
-	<button
-		on:click={handleLogoutClick}
-		class=" shadow-md p-2 bg-primary-dark rounded-md hover:scale-95 active:scale-90">Logout</button
-	>
-	<button
-		on:click={handleLoginClick}
-		class=" shadow-md p-2 bg-primary-dark rounded-md hover:scale-95 active:scale-90">Login</button
-	>
+	{#if session}
+		{session.user.email}
+		<Button onClick={handleLogoutClick}>Logout</Button>
+	{:else}
+		<Button onClick={handleLoginClick}>Login</Button>
+	{/if}
+	<div class="w-8 h-1 bg-primary-dark rounded-full" />
 	<button
 		on:click={handleHidePartnerClick}
 		class=" shadow-md p-2 bg-primary-dark rounded-md hover:scale-95 active:scale-90"

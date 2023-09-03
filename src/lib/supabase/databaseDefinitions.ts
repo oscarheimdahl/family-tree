@@ -12,6 +12,7 @@ export interface Database {
 					firstname: string | null;
 					generation: number | null;
 					id: string;
+					image: string | null;
 					lastname: string | null;
 					partnerto: string | null;
 				};
@@ -23,6 +24,7 @@ export interface Database {
 					firstname?: string | null;
 					generation?: number | null;
 					id: string;
+					image?: string | null;
 					lastname?: string | null;
 					partnerto?: string | null;
 				};
@@ -34,6 +36,7 @@ export interface Database {
 					firstname?: string | null;
 					generation?: number | null;
 					id?: string;
+					image?: string | null;
 					lastname?: string | null;
 					partnerto?: string | null;
 				};

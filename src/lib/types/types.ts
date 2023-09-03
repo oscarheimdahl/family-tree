@@ -13,4 +13,5 @@ export interface Relative {
 	description: string;
 	birthyear?: number;
 	generation?: number;
+	image?: string;
 }

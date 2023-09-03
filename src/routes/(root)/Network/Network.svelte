@@ -3,12 +3,12 @@
 	import { partnerinator } from './helpers/partnerinator';
 	import { onMount } from 'svelte';
 	import { networkOptions } from './helpers/networkOptions';
-	import { relativesStore, selectedRelativeIdStore } from '$lib/store/relative';
 	import { partner, getPartnerPairs, relative } from './helpers/styledNodes';
 	import { Network, type Edge } from 'vis-network';
 	import { DataSet } from 'vis-data';
 	import type { MyNode, Relative } from '$lib/types/types';
 	import { formatFullName } from './helpers/formatFullName';
+	import { store } from '$lib/store';
 
 	let network: Network | undefined;
 	let hierarchyMode = false;
@@ -19,12 +19,12 @@
 	export let relatives: Relative[];
 	onMount(() => {
 		if (!relatives) return;
-		relativesStore.set(relatives);
+		store.update((prev) => ({ ...prev, relatives }));
 		network = buildNetwork();
 		network.on('click', (e) => {
 			const nodeId = e.nodes[0];
 			// if (!nodeId) return;
-			selectedRelativeIdStore.set(nodeId);
+			store.update((prev) => ({ ...prev, selectedRelativeId: nodeId }));
 		});
 	});
 
@@ -32,7 +32,7 @@
 		if (!relatives) throw new Error('No relatives data');
 		nodes = new DataSet(
 			relatives.map((relativeData) => {
-				const relativeNode = {
+				const relativeNode: MyNode = {
 					id: relativeData.id,
 					label: formatFullName(relativeData.firstname, relativeData.lastname),
 					level: relativeData.generation
@@ -48,9 +48,15 @@
 		getPartnerPairs().forEach(({ from, to }) => {
 			edges.push(...partnerinator({ from, to }, edges, hierarchyMode));
 		});
-
-		networkOptions.layout.hierarchical.enabled = hierarchyMode;
-		return new Network(container, { nodes, edges }, networkOptions);
+		networkOptions.layout.hierarchical.enabled = false;
+		return new Network(
+			container,
+			{
+				nodes,
+				edges
+			},
+			networkOptions
+		);
 	}
 	function handleHidePartnerClick() {
 		hidePartners = !hidePartners;

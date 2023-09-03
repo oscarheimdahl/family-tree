@@ -1,6 +1,6 @@
 import type { Options } from 'vis-network';
-const relativeColor = '#0588D1';
-const partnerColor = '#3D3D52';
+const relativeColor = '#BA5955';
+const partnerColor = '#C17E33';
 
 export const networkOptions: Options = {
 	// configure: true,

@@ -1,49 +1,49 @@
 <script lang="ts">
-	import EditIcon from '$lib/icons/EditIcon.svelte';
-	import { relativesStore, selectedRelativeIdStore } from '$lib/store/relative';
-	import type { Relative } from '$lib/types/types';
-	import type { FormEventHandler } from 'svelte/elements';
-	import { capitalizeFirstLetter, formatFullName } from '../Network/helpers/formatFullName';
-	import { supabaseStore, type SupabaseType } from '$lib/store/supabaseStore';
-	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import EditIcon from '$lib/icons/EditIcon.svelte';
 	import EditStopIcon from '$lib/icons/EditStopIcon.svelte';
-	import { invalidate, invalidateAll } from '$app/navigation';
+	import { store, type SupabaseClientT } from '$lib/store';
+	import type { Relative } from '$lib/types/types';
+	import type { Session } from '@supabase/supabase-js';
+	import { capitalizeFirstLetter } from '../Network/helpers/formatFullName';
+	import Image from './Image.svelte';
 
-	let supabase: SupabaseType;
-	supabaseStore.subscribe((val) => (supabase = val));
-
+	let supabase: SupabaseClientT;
 	let selectedRelative: Relative | undefined;
-	let relatives: Relative[];
-
-	selectedRelativeIdStore.subscribe((val) => {
-		let foundRelative = relatives?.find((relative) => relative.id === val);
-		selectedRelative = foundRelative;
-		if (selectedRelative) {
-			firstnameInput = capitalizeFirstLetter(selectedRelative.firstname);
-			lastnameInput = capitalizeFirstLetter(selectedRelative.lastname);
-			descriptionInput = selectedRelative?.description ?? '';
-		}
-	});
-	relativesStore.subscribe((val) => (relatives = val));
+	let relatives: Relative[] | undefined;
+	let session: Session | null;
 
 	let editing = false;
 	let firstnameInput: string;
 	let lastnameInput: string;
 	let descriptionInput: string;
 
+	store.subscribe((val) => {
+		if (val.supabaseClient) supabase = val.supabaseClient;
+		session = val.session;
+		relatives = val.relatives;
+
+		let foundRelative = relatives?.find((relative) => relative.id === val.selectedRelativeId);
+		if (foundRelative) {
+			firstnameInput = capitalizeFirstLetter(foundRelative.firstname);
+			lastnameInput = capitalizeFirstLetter(foundRelative.lastname);
+			descriptionInput = foundRelative?.description ?? '';
+		}
+		selectedRelative = foundRelative;
+	});
+
 	let sendToSupabaseTimeout: NodeJS.Timeout;
 	function updateRelativeDebounce(relativeData: Partial<Relative>) {
 		clearTimeout(sendToSupabaseTimeout);
-		sendToSupabaseTimeout = setTimeout(() => {
+		sendToSupabaseTimeout = setTimeout(async () => {
 			if (!selectedRelative) return;
-			supabase
+			await supabase
 				.from('relatives')
 				.update({ ...relativeData })
 				.eq('id', selectedRelative.id);
 		}, 500);
 	}
-	let sendFirstnameInputTimout: NodeJS.Timeout;
+
 	async function handleFirstnameInput() {
 		updateRelativeDebounce({ firstname: firstnameInput });
 	}
@@ -72,27 +72,29 @@
 <div
 	aria-hidden={!selectedRelative}
 	class:translate-x-full={!selectedRelative}
-	class="absolute z-10 h-[calc(100%-1rem)] w-96 mt-4 p-4 right-0 text-white bg-primary-light shadow-lg transition-transform rounded-l-md"
+	class="absolute z-10 h-[calc(100%-2rem)] my-4 max-w-lg p-4 right-0 text-white bg-primary-light shadow-2xl shadow-gray-900 transition-transform rounded-l-md"
 >
 	{#if selectedRelative}
 		<div class="flex flex-col justify-between h-full">
 			<div class="flex flex-col gap-2">
-				<div class="flex gap-2 justify-between items-center">
+				<div class="flex gap-2">
 					{#if editing}
-						<div class="flex gap-2">
-							<input
-								type="text"
-								class="w-1/2 text-xl font-semibold text-black bg-none"
-								bind:value={firstnameInput}
-								on:input={handleFirstnameInput}
-							/>
-							<input
-								type="text"
-								class=" w-1/2 text-xl font-semibold text-black bg-none"
-								bind:value={lastnameInput}
-								on:input={handleLastnameInput}
-							/>
-						</div>
+						<!-- <div class="flex gap-2"> -->
+						<input
+							type="text"
+							class="text-xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
+							size={firstnameInput.length}
+							bind:value={firstnameInput}
+							on:input={handleFirstnameInput}
+						/>
+						<input
+							type="text"
+							class="text-xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
+							size={lastnameInput.length}
+							bind:value={lastnameInput}
+							on:input={handleLastnameInput}
+						/>
+						<!-- </div> -->
 					{:else}
 						<h1 class="text-xl font-semibold">
 							{firstnameInput}{' '}
@@ -100,30 +102,35 @@
 						</h1>
 					{/if}
 				</div>
-				<img
-					class="rounded-md m-8"
-					src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-					alt={`picture of ${selectedRelative.firstname}`}
-				/>
-				<h3>Description</h3>
-				{#if editing}
-					<span
-						class="bg-white text-black whitespace-pre-wrap"
-						contenteditable="true"
-						on:input={handleDescriptionInput}>{descriptionInput}</span
-					>
-				{:else}
-					<span class="text-black resize-none h-fit">{descriptionInput}</span>
-				{/if}
-			</div>
-			<div class="flex justify-end">
-				<Button onClick={() => (editing = !editing)}>
+				<Image {editing} {selectedRelative} />
+				<div class="ml-2">
+					<h3 class="-ml-2 font-bold text-lg">Born</h3>
+					<p class="">{selectedRelative.birthyear}</p>
+				</div>
+				<div class="ml-2">
+					<h3 class="-ml-2 font-bold text-lg">About</h3>
 					{#if editing}
-						<EditStopIcon /> Stop Editing
+						<span
+							class="bg-white text-black whitespace-pre-wrap"
+							contenteditable="true"
+							on:input={handleDescriptionInput}>{descriptionInput}</span
+						>
 					{:else}
-						<EditIcon /> Edit
+						<span class="resize-none h-fit">{descriptionInput}</span>
 					{/if}
-				</Button>
+				</div>
+			</div>
+			<div class="flex flex-col justify-center gap-4 w-full">
+				<div class="mx-8 h-[2px] bg-primary-dark max-w-full" />
+				<div class="flex justify-center">
+					<Button disabled={!session} onClick={() => (editing = !editing)}>
+						{#if editing}
+							<EditStopIcon /> Stop Editing
+						{:else}
+							<EditIcon /> Edit
+						{/if}
+					</Button>
+				</div>
 			</div>
 		</div>
 	{/if}

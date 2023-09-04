@@ -7,6 +7,10 @@
 	import type { Session } from '@supabase/supabase-js';
 	import { capitalizeFirstLetter } from '../Network/helpers/formatFullName';
 	import Image from './Image.svelte';
+	import CloseIcon from '$lib/icons/CloseIcon.svelte';
+	import ArrowRightIcon from '$lib/icons/ArrowRightIcon.svelte';
+	import ProgessIcon from '$lib/icons/ProgessIcon.svelte';
+	import CheckIcon from '$lib/icons/CheckIcon.svelte';
 
 	let supabase: SupabaseClientT;
 	let selectedRelative: Relative | undefined;
@@ -16,7 +20,12 @@
 	let editing = false;
 	let firstnameInput: string;
 	let lastnameInput: string;
+	let birthyearInput: number;
 	let descriptionInput: string;
+	let descriptionInputElement: HTMLTextAreaElement;
+
+	let loadingDBWrite = false;
+	let savedDBWrite = false;
 
 	store.subscribe((val) => {
 		if (val.supabaseClient) supabase = val.supabaseClient;
@@ -27,6 +36,7 @@
 		if (foundRelative) {
 			firstnameInput = capitalizeFirstLetter(foundRelative.firstname);
 			lastnameInput = capitalizeFirstLetter(foundRelative.lastname);
+			birthyearInput = foundRelative.birthyear ?? -1;
 			descriptionInput = foundRelative?.description ?? '';
 		}
 		selectedRelative = foundRelative;
@@ -34,13 +44,21 @@
 
 	let sendToSupabaseTimeout: NodeJS.Timeout;
 	function updateRelativeDebounce(relativeData: Partial<Relative>) {
+		console.log(`🔴`);
+		savedDBWrite = false;
+		loadingDBWrite = true;
 		clearTimeout(sendToSupabaseTimeout);
 		sendToSupabaseTimeout = setTimeout(async () => {
 			if (!selectedRelative) return;
 			await supabase
 				.from('relatives')
 				.update({ ...relativeData })
-				.eq('id', selectedRelative.id);
+				.eq('id', selectedRelative.id)
+				.then((res) => {
+					loadingDBWrite = false;
+					savedDBWrite = true;
+					setTimeout(() => (savedDBWrite = false), 3000);
+				});
 		}, 500);
 	}
 
@@ -52,82 +70,131 @@
 		updateRelativeDebounce({ lastname: lastnameInput });
 	}
 
-	let sendDescriptionInputTimout: NodeJS.Timeout;
-	async function handleDescriptionInput(
-		e: Event & { currentTarget: EventTarget & HTMLSpanElement }
-	) {
-		const target = e.target as HTMLSpanElement;
-		clearTimeout(sendDescriptionInputTimout);
-		sendDescriptionInputTimout = setTimeout(() => {
-			if (!selectedRelative) return;
-			supabase
-				.from('relatives')
-				.update({ description: target.textContent })
-				.eq('id', selectedRelative.id)
-				.then((res) => console.log(res));
-		}, 500);
+	async function handleBirthYearInput() {
+		updateRelativeDebounce({ birthyear: birthyearInput });
+	}
+
+	async function handleDescriptionInput(e: Event) {
+		const target = e.target as HTMLInputElement;
+		descriptionInput = target.value;
+		updateRelativeDebounce({ description: descriptionInput });
 	}
 </script>
 
 <div
 	aria-hidden={!selectedRelative}
 	class:translate-x-full={!selectedRelative}
-	class="absolute z-10 h-[calc(100%-2rem)] my-4 max-w-lg p-4 right-0 text-white bg-primary-light shadow-2xl shadow-gray-900 transition-transform rounded-l-md"
+	class="absolute overflow-hidden z-10 h-[calc(100%-2rem)] my-4 max-w-lg p-4 right-0 text-white bg-primary-light shadow-2xl shadow-gray-900 transition-transform rounded-l-md"
 >
 	{#if selectedRelative}
 		<div class="flex flex-col justify-between h-full">
 			<div class="flex flex-col gap-2">
-				<div class="flex gap-2">
-					{#if editing}
-						<!-- <div class="flex gap-2"> -->
+				<div class="flex gap-2 justify-end">
+					<Button
+						secondary
+						onClick={() => {
+							store.update((prev) => ({ ...prev, selectedRelativeId: undefined }));
+						}}
+					>
+						<div class="text-accent-1">
+							<ArrowRightIcon />
+						</div>
+					</Button>
+				</div>
+				{#if editing}
+					<div class="flex gap-2 justify-center">
 						<input
 							type="text"
-							class="text-xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
+							class="text-2xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
 							size={firstnameInput.length}
 							bind:value={firstnameInput}
 							on:input={handleFirstnameInput}
 						/>
 						<input
 							type="text"
-							class="text-xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
+							class="text-2xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
 							size={lastnameInput.length}
 							bind:value={lastnameInput}
 							on:input={handleLastnameInput}
 						/>
-						<!-- </div> -->
-					{:else}
-						<h1 class="text-xl font-semibold">
+					</div>
+				{:else}
+					<div class="flex justify-center">
+						<h1 class="text-2xl -ml-2 font-semibold border-b-2 border-accent-1 w-fit">
 							{firstnameInput}{' '}
 							{lastnameInput}
 						</h1>
-					{/if}
-				</div>
+					</div>
+				{/if}
 				<Image {editing} {selectedRelative} />
 				<div class="ml-2">
-					<h3 class="-ml-2 font-bold text-lg">Born</h3>
-					<p class="">{selectedRelative.birthyear}</p>
+					<h3 class="-ml-2 font-bold text-lg text-accent-1">Born</h3>
+					{#if editing}
+						<input
+							class="text-black"
+							type="number"
+							bind:value={birthyearInput}
+							on:input={handleBirthYearInput}
+						/>
+					{:else}
+						<p class="">
+							{birthyearInput || '-'}
+						</p>
+					{/if}
 				</div>
 				<div class="ml-2">
-					<h3 class="-ml-2 font-bold text-lg">About</h3>
-					{#if editing}
-						<span
-							class="bg-white text-black whitespace-pre-wrap"
-							contenteditable="true"
-							on:input={handleDescriptionInput}>{descriptionInput}</span
-						>
-					{:else}
-						<span class="resize-none h-fit">{descriptionInput}</span>
-					{/if}
+					<h3 class="-ml-2 font-bold text-lg text-accent-1">About</h3>
+					<!-- {#if editing} -->
+					<textarea
+						class="bg-transparent whitespace-pre-wrap w-full overflow-hidden"
+						disabled={!editing}
+						class:bg-white={editing}
+						class:resize-none={!editing}
+						class:text-black={editing}
+						style={`height: ${descriptionInputElement?.scrollHeight}px`}
+						value={descriptionInput || '-'}
+						bind:this={descriptionInputElement}
+						on:input={handleDescriptionInput}
+					/>
 				</div>
 			</div>
 			<div class="flex flex-col justify-center gap-4 w-full">
-				<div class="mx-8 h-[2px] bg-primary-dark max-w-full" />
-				<div class="flex justify-center">
-					<Button disabled={!session} onClick={() => (editing = !editing)}>
+				<div class="mx-1 h-[2px] bg-accent-1 max-w-full" />
+				<div class="flex justify-end relative">
+					<div
+						aria-hidden={!loadingDBWrite}
+						class:opacity-100={loadingDBWrite}
+						class="flex absolute left-0 top-2 gap-2 opacity-0 transition-opacity"
+					>
+						<span class="animate-spin w-min h-min">
+							<ProgessIcon />
+						</span> Saving...
+					</div>
+					<div
+						aria-hidden={!savedDBWrite}
+						class:-translate-x-12={!savedDBWrite}
+						class={`flex absolute left-0 top-2 gap-2 opacity-100 transition-transform duration-400`}
+					>
+						<span class="w-min h-min text-green-400 shadow-sm">
+							<CheckIcon />
+						</span>
+					</div>
+
+					<Button
+						disabled={!session}
+						onClick={() => {
+							editing = !editing;
+							savedDBWrite = false;
+						}}
+					>
 						{#if editing}
-							<EditStopIcon /> Stop Editing
+							<div class="flex gap-1">
+								<EditStopIcon /> Stop Editing
+							</div>
 						{:else}
-							<EditIcon /> Edit
+							<div class="flex gap-1">
+								<EditIcon /> Edit
+							</div>
 						{/if}
 					</Button>
 				</div>

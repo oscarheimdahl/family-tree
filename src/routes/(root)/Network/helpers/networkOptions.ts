@@ -1,6 +1,6 @@
 import type { Options } from 'vis-network';
-const relativeColor = '#BA5955';
-const partnerColor = '#C17E33';
+const relativeColor = '#D64933';
+export const partnerColor = '#DD962C';
 
 export const networkOptions: Options = {
 	// configure: true,
@@ -32,7 +32,9 @@ export const networkOptions: Options = {
 	nodes: {
 		shape: 'box',
 		shadow: {
-			color: 'black'
+			color: '#00000066',
+			x: 0,
+			size: 20
 		},
 		font: {
 			color: 'white'
@@ -51,11 +53,4 @@ export const networkOptions: Options = {
 		arrows: { to: { scaleFactor: 0.8, type: 'arrow', enabled: true } },
 		arrowStrikethrough: false
 	}
-};
-
-export const partnerColors = {
-	background: partnerColor,
-	highlight: partnerColor,
-	hover: partnerColor,
-	border: partnerColor
 };

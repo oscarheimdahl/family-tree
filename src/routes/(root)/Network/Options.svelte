@@ -34,7 +34,7 @@
 	{:else}
 		<Button onClick={handleLoginClick}>Login</Button>
 	{/if}
-	<div class="w-8 h-1 bg-primary-dark rounded-full" />
+	<div class="w-[calc(100%-4rem)] my-2 h-[2px] bg-accent-1" />
 	<button
 		on:click={handleHidePartnerClick}
 		class=" shadow-md p-2 bg-primary-dark rounded-md hover:scale-95 active:scale-90"

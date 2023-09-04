@@ -9,12 +9,15 @@
 	import { onMount } from 'svelte';
 	import UserIcon from '$lib/icons/UserIcon.svelte';
 	import UploadIcon from '$lib/icons/UploadIcon.svelte';
+	import ProgessIcon from '$lib/icons/ProgessIcon.svelte';
 
 	export let editing: boolean;
 	export let selectedRelative: Relative;
 	let supabase: SupabaseClientT;
 	let imgElement: HTMLImageElement;
 	let fileInput: HTMLInputElement;
+
+	let loading = false;
 
 	store.subscribe((val) => {
 		if (val.supabaseClient) supabase = val.supabaseClient;
@@ -24,6 +27,7 @@
 		const target = e.target as HTMLInputElement;
 		const file = target.files?.item(0);
 		if (!file) return;
+		loading = true;
 		const path = `img/${crypto.randomUUID()}.${file.type.split('/')[1]}`;
 		const res = await supabase.storage
 			.from('relatives')
@@ -33,6 +37,7 @@
 		const url = data.data.publicUrl;
 		await supabase.from('relatives').update({ image: url }).eq('id', selectedRelative.id);
 		imgElement.src = url;
+		loading = false;
 	}
 </script>
 
@@ -45,22 +50,25 @@
 		fileInput.click();
 	}}
 >
-	{#if selectedRelative.image}
-		<img
-			bind:this={imgElement}
-			class="w-full h-full object-cover object-center bg-primary-dark"
-			class:animate-ping={!imgElement?.loading}
-			src={selectedRelative?.image ??
-				'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
-			alt={`picture of ${selectedRelative?.firstname}`}
-		/>
-	{:else}
-		<div class="rounded-md w-72 h-72 bg-primary-dark grid place-content-center">
-			<span class="scale-[600%]">
-				<UserIcon />
-			</span>
-		</div>
-	{/if}
+	<!-- {#if selectedRelative.image} -->
+	<img
+		class:hidden={!selectedRelative.image}
+		bind:this={imgElement}
+		class="w-full h-full object-cover object-center bg-primary-dark"
+		class:animate-ping={!imgElement?.loading}
+		src={selectedRelative.image}
+		alt={`picture of ${selectedRelative?.firstname}`}
+	/>
+	<!-- {:else} -->
+	<div
+		class:hidden={selectedRelative.image}
+		class="rounded-md w-72 h-72 bg-primary-dark grid place-content-center"
+	>
+		<span class="scale-[600%]">
+			<UserIcon />
+		</span>
+	</div>
+	<!-- {/if} -->
 	{#if editing}
 		<div
 			class:opacity-90={selectedRelative.image}
@@ -70,8 +78,13 @@
 				class="scale-[600%] transition-transform
                    group-hover:scale-[570%]
                    group-active:translate-y-2"
-			>
-				<UploadIcon />
+				>{#if loading}
+					<div class="animate-spin w-min h-min">
+						<ProgessIcon />
+					</div>
+				{:else}
+					<UploadIcon />
+				{/if}
 			</span>
 		</div>
 	{/if}

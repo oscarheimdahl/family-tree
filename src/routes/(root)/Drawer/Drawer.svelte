@@ -96,11 +96,10 @@
 							store.update((prev) => ({ ...prev, selectedRelativeId: undefined }));
 						}}
 					>
-						<div class="text-accent-1">
-							<ArrowRightIcon />
-						</div>
+						<CloseIcon />
 					</Button>
 				</div>
+				<div class="mx-1 h-[2px] bg-accent-1 max-w-full" />
 				{#if editing}
 					<div class="flex gap-2 justify-center">
 						<input
@@ -120,7 +119,7 @@
 					</div>
 				{:else}
 					<div class="flex justify-center">
-						<h1 class="text-2xl -ml-2 font-semibold border-b-2 border-accent-1 w-fit">
+						<h1 class="text-2xl -ml-2 font-semibold w-fit">
 							{firstnameInput}{' '}
 							{lastnameInput}
 						</h1>

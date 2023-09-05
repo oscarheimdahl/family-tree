@@ -3,6 +3,7 @@
 	import '../app.css';
 	import { invalidate } from '$app/navigation';
 	import { store } from '$lib/store';
+	import Toaster from '$lib/components/Toaster.svelte';
 
 	export let data;
 
@@ -24,9 +25,5 @@
 	});
 </script>
 
-<h1
-	class="absolute z-10 left-1/2 rounded-b-lg -translate-x-1/2 text-center text-xl text-white py-2 px-4 bg-primary-light"
->
-	Pettersson Family Tree
-</h1>
 <slot />
+<Toaster />

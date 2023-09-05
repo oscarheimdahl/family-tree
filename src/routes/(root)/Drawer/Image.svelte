@@ -1,15 +1,9 @@
 <script lang="ts">
-	import Button from '$lib/components/Button.svelte';
-	import EditIcon from '$lib/icons/EditIcon.svelte';
-	import EditStopIcon from '$lib/icons/EditStopIcon.svelte';
-	import { store, type SupabaseClientT } from '$lib/store';
-	import type { Relative } from '$lib/types/types';
-	import type { Session } from '@supabase/supabase-js';
-	import { capitalizeFirstLetter } from '../Network/helpers/formatFullName';
-	import { onMount } from 'svelte';
-	import UserIcon from '$lib/icons/UserIcon.svelte';
-	import UploadIcon from '$lib/icons/UploadIcon.svelte';
 	import ProgessIcon from '$lib/icons/ProgessIcon.svelte';
+	import UploadIcon from '$lib/icons/UploadIcon.svelte';
+	import UserIcon from '$lib/icons/UserIcon.svelte';
+	import { setErrorMessage, store, type SupabaseClientT } from '$lib/store';
+	import type { Relative } from '$lib/types/types';
 
 	export let editing: boolean;
 	export let selectedRelative: Relative;
@@ -29,14 +23,33 @@
 		if (!file) return;
 		loading = true;
 		const path = `img/${crypto.randomUUID()}.${file.type.split('/')[1]}`;
-		const res = await supabase.storage
+		const { error } = await supabase.storage
 			.from('relatives')
 			.upload(path, file, { contentType: file.type, upsert: true });
-		if (res.error) return;
-		const data = supabase.storage.from('relatives').getPublicUrl(path);
-		const url = data.data.publicUrl;
-		await supabase.from('relatives').update({ image: url }).eq('id', selectedRelative.id);
-		imgElement.src = url;
+		if (error) {
+			loading = false;
+			setErrorMessage(error.message);
+			return;
+		}
+		const { data } = supabase.storage.from('relatives').getPublicUrl(path);
+		const url = data.publicUrl;
+		const { error: updateError } = await supabase
+			.from('relatives')
+			.update({ image: url })
+			.eq('id', selectedRelative.id);
+		if (updateError) {
+			loading = false;
+			setErrorMessage(updateError.message);
+			return;
+		}
+		selectedRelative.image = url;
+		// const fr = new FileReader();
+		// fr.onload = function () {
+		// 	if (!imgElement || typeof fr.result !== 'string') return;
+		// 	imgElement.src = fr.result;
+		// 	selectedRelative.image = 'hej';
+		// };
+		// fr.readAsDataURL(file);
 		loading = false;
 	}
 </script>
@@ -50,16 +63,13 @@
 		fileInput.click();
 	}}
 >
-	<!-- {#if selectedRelative.image} -->
 	<img
 		class:hidden={!selectedRelative.image}
 		bind:this={imgElement}
 		class="w-full h-full object-cover object-center bg-primary-dark"
-		class:animate-ping={!imgElement?.loading}
 		src={selectedRelative.image}
 		alt={`picture of ${selectedRelative?.firstname}`}
 	/>
-	<!-- {:else} -->
 	<div
 		class:hidden={selectedRelative.image}
 		class="rounded-md w-72 h-72 bg-primary-dark grid place-content-center"
@@ -68,7 +78,6 @@
 			<UserIcon />
 		</span>
 	</div>
-	<!-- {/if} -->
 	{#if editing}
 		<div
 			class:opacity-90={selectedRelative.image}
@@ -96,5 +105,5 @@
 	on:change={handleUpload}
 	type="file"
 	id="file-selector"
-	accept=".jpg, .jpeg, .png"
+	accept=".jpg, .jpeg, .png, .pdf"
 />

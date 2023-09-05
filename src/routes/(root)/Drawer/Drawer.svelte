@@ -84,7 +84,7 @@
 <div
 	aria-hidden={!selectedRelative}
 	class:translate-x-full={!selectedRelative}
-	class="absolute overflow-hidden z-10 h-[calc(100%-2rem)] my-4 max-w-lg p-4 right-0 text-white bg-primary-light shadow-2xl shadow-gray-900 transition-transform rounded-l-md"
+	class="absolute overflow-hidden z-10 h-[calc(100%-2rem)] my-4 p-4 right-0 text-white bg-primary-light shadow-2xl shadow-gray-900 transition-transform rounded-l-md max-w-xs lg:max-w-lg"
 >
 	{#if selectedRelative}
 		<div class="flex flex-col justify-between h-full">

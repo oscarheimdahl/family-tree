@@ -56,7 +56,7 @@
 
 <button
 	disabled={!editing}
-	class="group relative m-4 rounded-md overflow-hidden w-72 aspect-square"
+	class="group relative m-4 rounded-md overflow-hidden max-w-xs aspect-square"
 	aria-label="upload-image"
 	on:click={() => {
 		if (!editing) return;

@@ -87,7 +87,7 @@
 	transition-transform
 	max-w-xs lg:max-w-lg ${open ? '' : 'translate-x-[calc(100%+1rem)]'}`}
 >
-	<div class="fixed top-8 right-8">
+	<div class="absolute z-10 top-4 right-4">
 		<Button
 			onClick={() => {
 				setSelectedRelative(undefined);
@@ -126,7 +126,6 @@
 						</h1>
 					</div>
 				{/if}
-
 				<div class="ml-2">
 					<h3 class="-ml-2 font-bold text-lg text-accent-1">Born</h3>
 					{#if editing}
@@ -145,13 +144,13 @@
 				<div class="ml-2">
 					<h3 class="-ml-2 font-bold text-lg text-accent-1">About</h3>
 					<textarea
-						class="bg-transparent max-h-96 whitespace-pre-wrap w-full overflow-y-auto"
+						class="bg-transparent max-h-96 whitespace-pre-wrap w-full overflow-y-auto pr-4"
 						disabled={!editing}
 						class:bg-white={editing}
 						class:resize-none={!editing}
 						class:text-black={editing}
 						style={`height: ${
-							descriptionInput.length / 2 + 40 + descriptionInput.split('\n').length * 20
+							descriptionInput.length * 2 + 40 + descriptionInput.split('\n').length * 20
 						}px`}
 						value={descriptionInput || '-'}
 						bind:this={descriptionInputElement}

@@ -8,7 +8,7 @@
 	import { DataSet } from 'vis-data';
 	import type { MyNode, Relative } from '$lib/types/types';
 	import { formatFullName } from './helpers/formatFullName';
-	import { store } from '$lib/store';
+	import { setSelectedRelative, store } from '$lib/store';
 
 	let network: Network | undefined;
 	let hierarchyMode = false;
@@ -24,7 +24,11 @@
 		network.on('click', (e) => {
 			const nodeId = e.nodes[0];
 			// if (!nodeId) return;
-			store.update((prev) => ({ ...prev, selectedRelativeId: nodeId }));
+			const clickedRelative = relatives.find((relative) => relative.id === nodeId);
+			if (clickedRelative) setSelectedRelative(clickedRelative);
+			else setSelectedRelative(undefined);
+
+			// store.update((prev) => ({ ...prev, selectedRelativeId: nodeId }));
 		});
 	});
 

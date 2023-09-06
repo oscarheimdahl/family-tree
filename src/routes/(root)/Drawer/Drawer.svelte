@@ -2,7 +2,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import EditIcon from '$lib/icons/EditIcon.svelte';
 	import EditStopIcon from '$lib/icons/EditStopIcon.svelte';
-	import { store, type SupabaseClientT } from '$lib/store';
+	import { setSelectedRelative, store, type SupabaseClientT } from '$lib/store';
 	import type { Relative } from '$lib/types/types';
 	import type { Session } from '@supabase/supabase-js';
 	import { capitalizeFirstLetter } from '../Network/helpers/formatFullName';
@@ -14,8 +14,8 @@
 
 	let supabase: SupabaseClientT;
 	let selectedRelative: Relative | undefined;
-	let relatives: Relative[] | undefined;
 	let session: Session | null;
+	let open = false;
 
 	let editing = false;
 	let firstnameInput: string;
@@ -30,21 +30,18 @@
 	store.subscribe((val) => {
 		if (val.supabaseClient) supabase = val.supabaseClient;
 		session = val.session;
-		relatives = val.relatives;
+		open = val.openDrawer;
 
-		let foundRelative = relatives?.find((relative) => relative.id === val.selectedRelativeId);
-		if (foundRelative) {
-			firstnameInput = capitalizeFirstLetter(foundRelative.firstname);
-			lastnameInput = capitalizeFirstLetter(foundRelative.lastname);
-			birthyearInput = foundRelative.birthyear ?? -1;
-			descriptionInput = foundRelative?.description ?? '';
-		}
-		selectedRelative = foundRelative;
+		selectedRelative = val.selectedRelative;
+		if (!selectedRelative) return;
+		firstnameInput = capitalizeFirstLetter(selectedRelative.firstname);
+		lastnameInput = capitalizeFirstLetter(selectedRelative.lastname);
+		birthyearInput = selectedRelative.birthyear ?? -1;
+		descriptionInput = selectedRelative?.description ?? '';
 	});
 
 	let sendToSupabaseTimeout: NodeJS.Timeout;
 	function updateRelativeDebounce(relativeData: Partial<Relative>) {
-		console.log(`🔴`);
 		savedDBWrite = false;
 		loadingDBWrite = true;
 		clearTimeout(sendToSupabaseTimeout);
@@ -82,24 +79,29 @@
 </script>
 
 <div
-	aria-hidden={!selectedRelative}
-	class:translate-x-full={!selectedRelative}
-	class="absolute overflow-hidden z-10 h-[calc(100%-2rem)] my-4 p-4 right-0 text-white bg-primary-light shadow-2xl shadow-gray-900 transition-transform rounded-l-md max-w-xs lg:max-w-lg"
+	aria-hidden={!open}
+	class:translate-x-full={!open}
+	class="absolute overflow-y-scroll z-10 max-h-[calc(100%-2rem)]
+	mt-4 mr-4 p-4 -right-4 top-0
+	rounded-md
+	text-white bg-primary-light shadow-2xl shadow-gray-900
+	transition-transform
+	max-w-xs lg:max-w-lg"
 >
 	{#if selectedRelative}
 		<div class="flex flex-col justify-between h-full">
 			<div class="flex flex-col gap-2">
-				<div class="flex gap-2 justify-end">
+				<div class="absolute top-4 right-4">
 					<Button
-						secondary
 						onClick={() => {
-							store.update((prev) => ({ ...prev, selectedRelativeId: undefined }));
+							setSelectedRelative(undefined);
 						}}
 					>
 						<CloseIcon />
 					</Button>
 				</div>
-				<div class="mx-1 h-[2px] bg-accent-1 max-w-full" />
+				<!-- <div class="mx-1 h-[2px] bg-accent-1 max-w-full" /> -->
+				<Image {editing} {selectedRelative} />
 				{#if editing}
 					<div class="flex gap-2 justify-center">
 						<input
@@ -119,13 +121,13 @@
 					</div>
 				{:else}
 					<div class="flex justify-center">
-						<h1 class="text-2xl -ml-2 font-semibold w-fit">
+						<h1 class="text-3xl -ml-2 font-semibold w-fit">
 							{firstnameInput}{' '}
 							{lastnameInput}
 						</h1>
 					</div>
 				{/if}
-				<Image {editing} {selectedRelative} />
+
 				<div class="ml-2">
 					<h3 class="-ml-2 font-bold text-lg text-accent-1">Born</h3>
 					{#if editing}
@@ -143,14 +145,15 @@
 				</div>
 				<div class="ml-2">
 					<h3 class="-ml-2 font-bold text-lg text-accent-1">About</h3>
-					<!-- {#if editing} -->
 					<textarea
-						class="bg-transparent whitespace-pre-wrap w-full overflow-hidden"
+						class="bg-transparent max-h-96 whitespace-pre-wrap w-full overflow-y-scroll"
 						disabled={!editing}
 						class:bg-white={editing}
 						class:resize-none={!editing}
 						class:text-black={editing}
-						style={`height: ${descriptionInputElement?.scrollHeight}px`}
+						style={`height: ${
+							descriptionInput.length / 5 + 40 + descriptionInput.split('\n').length * 20
+						}px`}
 						value={descriptionInput || '-'}
 						bind:this={descriptionInputElement}
 						on:input={handleDescriptionInput}

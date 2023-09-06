@@ -56,7 +56,7 @@
 
 <button
 	disabled={!editing}
-	class="group relative m-4 rounded-md overflow-hidden max-w-xs aspect-square"
+	class="group relative m-4 rounded-full shadow-xl overflow-hidden aspect-square"
 	aria-label="upload-image"
 	on:click={() => {
 		if (!editing) return;
@@ -66,13 +66,13 @@
 	<img
 		class:hidden={!selectedRelative.image}
 		bind:this={imgElement}
-		class="w-full h-full object-cover object-center bg-primary-dark"
+		class="w-[300px] h-[300px] object-cover object-center bg-primary-dark"
 		src={selectedRelative.image}
 		alt={`picture of ${selectedRelative?.firstname}`}
 	/>
 	<div
 		class:hidden={selectedRelative.image}
-		class="rounded-md w-72 h-72 bg-primary-dark grid place-content-center"
+		class="rounded-md w-[300px] h-[300px] bg-primary-dark grid place-content-center"
 	>
 		<span class="scale-[600%]">
 			<UserIcon />
@@ -81,7 +81,7 @@
 	{#if editing}
 		<div
 			class:opacity-90={selectedRelative.image}
-			class="absolute top-0 left-0 rounded-md w-72 h-72 bg-primary-dark grid place-content-center"
+			class="absolute w-[300px] h-[300px] top-0 left-0 rounded-md bg-primary-dark grid place-content-center"
 		>
 			<span
 				class="scale-[600%] transition-transform

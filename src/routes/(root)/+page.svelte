@@ -7,8 +7,6 @@
 </script>
 
 {#if data.relatives}
-	<div class="flex h-full">
-		<Network relatives={data.relatives} />
-		<Drawer />
-	</div>
+	<Network relatives={data.relatives} />
 {/if}
+<Drawer />

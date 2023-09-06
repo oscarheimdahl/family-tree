@@ -80,26 +80,25 @@
 
 <div
 	aria-hidden={!open}
-	class:translate-x-full={!open}
-	class="absolute overflow-y-scroll z-10 max-h-[calc(100%-2rem)]
-	mt-4 mr-4 p-4 -right-4 top-0
+	class={`absolute overflow-y-auto z-10 max-h-[calc(100%-2rem)]
+	mt-4 mr-4 p-4 right-0 top-0
 	rounded-md
 	text-white bg-primary-light shadow-2xl shadow-gray-900
 	transition-transform
-	max-w-xs lg:max-w-lg"
+	max-w-xs lg:max-w-lg ${open ? '' : 'translate-x-[calc(100%+1rem)]'}`}
 >
+	<div class="fixed top-8 right-8">
+		<Button
+			onClick={() => {
+				setSelectedRelative(undefined);
+			}}
+		>
+			<CloseIcon />
+		</Button>
+	</div>
 	{#if selectedRelative}
 		<div class="flex flex-col justify-between h-full">
 			<div class="flex flex-col gap-2">
-				<div class="absolute top-4 right-4">
-					<Button
-						onClick={() => {
-							setSelectedRelative(undefined);
-						}}
-					>
-						<CloseIcon />
-					</Button>
-				</div>
 				<!-- <div class="mx-1 h-[2px] bg-accent-1 max-w-full" /> -->
 				<Image {editing} {selectedRelative} />
 				{#if editing}
@@ -146,13 +145,13 @@
 				<div class="ml-2">
 					<h3 class="-ml-2 font-bold text-lg text-accent-1">About</h3>
 					<textarea
-						class="bg-transparent max-h-96 whitespace-pre-wrap w-full overflow-y-scroll"
+						class="bg-transparent max-h-96 whitespace-pre-wrap w-full overflow-y-auto"
 						disabled={!editing}
 						class:bg-white={editing}
 						class:resize-none={!editing}
 						class:text-black={editing}
 						style={`height: ${
-							descriptionInput.length / 5 + 40 + descriptionInput.split('\n').length * 20
+							descriptionInput.length / 2 + 40 + descriptionInput.split('\n').length * 20
 						}px`}
 						value={descriptionInput || '-'}
 						bind:this={descriptionInputElement}

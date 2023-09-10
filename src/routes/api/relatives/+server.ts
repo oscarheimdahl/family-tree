@@ -19,13 +19,15 @@ function insertRelativesFromFile() {
 		const relativesCSV = fs.readFileSync('./data/book1.csv', 'utf8');
 		const relatives = parseRelatives(relativesCSV) ?? [];
 		relatives.forEach((relative) => {
+			console.log(relative);
 			supabase
 				.from('relatives')
 				.upsert({
-					...relative,
-					description: undefined
+					...relative
 				})
-				.then((res) => console.log(res));
+				.then((res) => {
+					return console.log(relative.id, res);
+				});
 		});
 	} catch (err) {
 		console.error(err);

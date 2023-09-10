@@ -24,6 +24,7 @@
 		network.on('click', (e) => {
 			const nodeId = e.nodes[0];
 			// if (!nodeId) return;
+			// console.log(nodeId);
 			const clickedRelative = relatives.find((relative) => relative.id === nodeId);
 			if (clickedRelative) setSelectedRelative(clickedRelative);
 			else setSelectedRelative(undefined);
@@ -46,13 +47,18 @@
 			})
 		);
 		const edges: Edge[] = relatives.map((relativeData) => {
-			return { from: relativeData.childof, to: relativeData.id };
+			console.log(relativeData.generation);
+			return {
+				from: relativeData.childof,
+				to: relativeData.id,
+				length: (relativeData.generation ?? 1) * 50
+			};
 		});
 
 		getPartnerPairs().forEach(({ from, to }) => {
 			edges.push(...partnerinator({ from, to }, edges, hierarchyMode));
 		});
-		networkOptions.layout.hierarchical.enabled = false;
+		// networkOptions.layout.hierarchical.enabled = false;
 		return new Network(
 			container,
 			{

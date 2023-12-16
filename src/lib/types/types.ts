@@ -2,6 +2,8 @@ import type { Node } from 'vis-network';
 
 export interface MyNode extends Node {
 	partner?: boolean;
+	parentsId?: string;
+	relationshipId?: string;
 }
 
 export interface Relative {

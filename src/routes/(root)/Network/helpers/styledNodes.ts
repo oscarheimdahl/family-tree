@@ -11,26 +11,39 @@ function commonOptions(node: MyNode) {
 	return node;
 }
 
-export function partner(node: MyNode, from: string) {
-	node = commonOptions(node);
+export function partner(node: MyNode) {
+	node = relative(node);
 	node.color = {
 		background: partnerColor,
-		highlight: partnerColor,
-		hover: partnerColor,
-		border: partnerColor
+		border: partnerColor,
 	};
-	node.partner = true;
-
-	partnerPairs.push({ from, to: node.id as string });
-	// node.shadow = false;
-	node.borderWidth = 5;
-	node.shapeProperties = { borderRadius: 2 };
-	node.font = { size: 12 };
 	return node;
 }
 
 export function relative(node: MyNode) {
 	node = commonOptions(node);
+	node.widthConstraint = { minimum: 80, maximum: 80 };
+
+	return node;
+}
+
+export function parentConnector(node: MyNode) {
+	node = commonOptions(node);
+	node.color = {
+		background: '#ffffff',
+	};
+	node.widthConstraint = 1;
+
+	node.borderWidth = 0;
+	node.shapeProperties = { borderRadius: 90 };
+
+	return node;
+}
+
+export function childConnector(node: MyNode) {
+	node = commonOptions(node);
+	node.opacity = 0;
+	node.shapeProperties = { borderRadius: 90 };
 
 	return node;
 }

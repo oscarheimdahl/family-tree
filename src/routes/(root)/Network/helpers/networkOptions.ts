@@ -12,23 +12,25 @@ export const networkOptions: Options = {
 		// 	sortMethod: 'hubsize'
 		// }
 	},
-	// interaction: {
-	// 	hover: true,
-	// 	selectable: true
-	// },
-	// physics: {
-	// 	hierarchicalRepulsion: {
-	// 		avoidOverlap: 1
-	// 	},
-	// 	barnesHut: {
-	// 		damping: 0.75,
-	// 		avoidOverlap: 0.34
-	// 	},
-	// 	repulsion: {
-	// 		centralGravity: 1
-	// 		// springLength:
-	// 	}
-	// },
+	interaction: {
+		hover: false,
+		selectable: false,
+		dragNodes: false
+	},
+	physics: {
+		enabled: false
+		// hierarchicalRepulsion: {
+		// 	avoidOverlap: 1
+		// },
+		// barnesHut: {
+		// 	damping: 0.75,
+		// 	avoidOverlap: 0.34
+		// },
+		// repulsion: {
+		// 	centralGravity: 1
+		// 	// springLength:
+		// }
+	},
 	nodes: {
 		shape: 'box',
 		shadow: {
@@ -46,12 +48,13 @@ export const networkOptions: Options = {
 			border: relativeColor
 		},
 		borderWidth: 10,
-		shapeProperties: { borderRadius: 1 }
+		shapeProperties: { borderRadius: 1 },
+		physics: false
 	},
 	edges: {
-		// length: 300,
-		color: '#ccc',
-		arrows: { to: { scaleFactor: 0.8, type: 'arrow', enabled: true } },
+		length: 1,
+		color: '#ffffff',
+		// arrows: { to: { scaleFactor: 0.8, type: 'arrow', enabled: true } },
 		arrowStrikethrough: false
 	}
 };

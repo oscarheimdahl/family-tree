@@ -8,7 +8,7 @@ export type SupabaseClientT = ReturnType<typeof createSupabaseLoadClient<Databas
 
 type StoreType = {
 	relatives: Relative[];
-	selectedRelative: Relative | undefined;
+	selectedRelativeId: string | undefined;
 	supabaseClient?: SupabaseClientT;
 	session: Session | null;
 	errorMessage: string;
@@ -21,8 +21,8 @@ export const store = writable<StoreType>({
 	session: null,
 	errorMessage: '',
 	showErrorToaster: false,
-	selectedRelative: undefined,
-	openDrawer: false
+	selectedRelativeId: undefined,
+	openDrawer: false,
 });
 
 let showErrorMessageTimeout: NodeJS.Timeout;
@@ -31,13 +31,14 @@ export function setErrorMessage(message: string) {
 	store.update((prev) => ({ ...prev, errorMessage: message, showErrorToaster: true }));
 	showErrorMessageTimeout = setTimeout(
 		() => store.update((prev) => ({ ...prev, showErrorToaster: false })),
-		2000
+		2000,
 	);
 }
 
 // let showErrorMessageTimeout: NodeJS.Timeout;
-export function setSelectedRelative(relative: Relative | undefined) {
+export function setSelectedRelative(relative: string | undefined) {
 	// clearTimeout(showErrorMessageTimeout);
-	if (relative) store.update((prev) => ({ ...prev, selectedRelative: relative, openDrawer: true }));
+	if (relative)
+		store.update((prev) => ({ ...prev, selectedRelativeId: relative, openDrawer: true }));
 	else store.update((prev) => ({ ...prev, openDrawer: false }));
 }

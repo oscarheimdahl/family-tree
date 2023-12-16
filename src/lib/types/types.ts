@@ -8,12 +8,12 @@ export interface MyNode extends Node {
 
 export interface Relative {
 	id: string;
-	firstname: string;
-	lastname: string;
-	childof: string;
-	partnerto: string;
-	description: string;
-	birthyear?: number;
-	generation?: number;
-	image?: string;
+	firstname: string | null;
+	lastname: string | null;
+	childof: string | null;
+	partnerto: string | null;
+	description: string | null;
+	birthyear?: number | null;
+	generation?: number | null;
+	image?: string | null;
 }

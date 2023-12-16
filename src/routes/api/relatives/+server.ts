@@ -18,15 +18,93 @@ function insertRelativesFromFile() {
 	try {
 		const relativesCSV = fs.readFileSync('./data/book1.csv', 'utf8');
 		const relatives = parseRelatives(relativesCSV) ?? [];
-		relatives.forEach((relative) => {
+		[
+			'larsolof-pettersson',
+			'larsolof-pettersson_larsolofwife',
+			'larsolofwife',
+			'larsolof-pettersson2',
+			'albert-pettersson',
+			'emma-pettersson',
+			'augusta-pettersson',
+			'augusta-pettersson_augustahusband',
+			'augustahusband',
+			'lenay',
+			'lenay_lenayhusband',
+			'lenayhusband',
+			'lester',
+			'lester_lesterwife',
+			'lesterwife',
+			'george',
+			'chris',
+			'cathy',
+			'cathy_cathyhusband',
+			'cathyhusband',
+			'taylor',
+			'patrick',
+			'clyde',
+			'clyde_clydewife',
+			'clydewife',
+			'robert',
+			'howard',
+			'larsolof-pettersson2_josefinaamalia-pettersson',
+			'josefinaamalia-pettersson',
+			'berta-pettersson',
+			'josef-pettersson',
+			'sigge-pettersson',
+			'lambert-pettersson',
+			'emil-pettersson',
+			'manne-pettersson',
+			'manne-pettersson_mannewife',
+			'mannewife',
+			'rune-pettersson',
+			'rune-pettersson_kerstin-pettersson',
+			'kerstin-pettersson',
+			'johan-pettersson',
+			'johan-pettersson_ingela-heimdahl',
+			'ingela-heimdahl',
+			'lina-heimdahl',
+			'gustav-heimdahl',
+			'oscar-heimdahl',
+			'anna-heimdahl',
+			'agnes-heimdahl',
+			'elsa-heimdahl',
+			'eva-pettersson',
+			'eva-pettersson_prayadh-kullapa',
+			'prayadh-kullapa',
+			'åsa-kullapa',
+			'åsa-kullapa_vince-alaras',
+			'vince-alaras',
+			'clara-kullapa',
+			'alva-kullapa',
+			'ella-kullapa',
+			'malin-kullapa',
+			'malin-kullapa_john-malmlund',
+			'john-malmlund',
+			'olive-kullapa',
+			'zoe-kullapa',
+			'dan-kullapa',
+			'dan-kullapa_therese-vindahl',
+			'therese-vindahl',
+			'viola-kullapa',
+			'baby-kullapa',
+			'hanna-asp',
+			'hanna-asp_petter-asp',
+			'petter-asp',
+			'ebba-asp',
+			'ebba-asp_sebastian-lind',
+			'sebastian-lind',
+			'ted-asp',
+			'erik-asp',
+			'arvid-asp',
+		].forEach((relative) => {
 			console.log(relative);
 			supabase
 				.from('relatives')
 				.upsert({
-					...relative
+					id: relative,
 				})
 				.then((res) => {
-					return console.log(relative.id, res);
+					return console.log(relative, res);
 				});
 		});
 	} catch (err) {
@@ -50,7 +128,7 @@ function parseRelatives(data: string) {
 			lastname: '',
 			childof: '',
 			partnerto: '',
-			description: ''
+			description: '',
 		};
 		words.forEach((word, i) => {
 			word = word.replace(/(\r\n|\n|\r)/gm, '');

@@ -6,7 +6,7 @@
 	import type { Relative } from '$lib/types/types';
 
 	export let editing: boolean;
-	export let selectedRelative: Relative;
+	export let selectedRelative: Relative | undefined;
 	let supabase: SupabaseClientT;
 	let imgElement: HTMLImageElement;
 	let fileInput: HTMLInputElement;
@@ -18,6 +18,7 @@
 	});
 
 	async function handleUpload(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+		if (!selectedRelative) return;
 		const target = e.target as HTMLInputElement;
 		const file = target.files?.item(0);
 		if (!file) return;
@@ -54,56 +55,58 @@
 	}
 </script>
 
-<button
-	disabled={!editing}
-	class="group relative m-4 rounded-full shadow-xl overflow-hidden aspect-square"
-	aria-label="upload-image"
-	on:click={() => {
-		if (!editing) return;
-		fileInput.click();
-	}}
->
-	<img
-		class:hidden={!selectedRelative.image}
-		bind:this={imgElement}
-		class="w-[300px] h-[300px] object-cover object-center bg-primary-dark"
-		src={selectedRelative.image}
-		alt={`picture of ${selectedRelative?.firstname}`}
-	/>
-	<div
-		class:hidden={selectedRelative.image}
-		class="rounded-md w-[300px] h-[300px] bg-primary-dark grid place-content-center"
+{#if selectedRelative}
+	<button
+		disabled={!editing}
+		class="group relative m-4 rounded-full shadow-xl overflow-hidden aspect-square"
+		aria-label="upload-image"
+		on:click={() => {
+			if (!editing) return;
+			fileInput.click();
+		}}
 	>
-		<span class="scale-[600%]">
-			<UserIcon />
-		</span>
-	</div>
-	{#if editing}
+		<img
+			class:hidden={!selectedRelative.image}
+			bind:this={imgElement}
+			class="w-[300px] h-[300px] object-cover object-center bg-primary-dark"
+			src={selectedRelative.image}
+			alt={`picture of ${selectedRelative?.firstname}`}
+		/>
 		<div
-			class:opacity-90={selectedRelative.image}
-			class="absolute w-[300px] h-[300px] top-0 left-0 rounded-md bg-primary-dark grid place-content-center"
+			class:hidden={selectedRelative.image}
+			class="rounded-md w-[300px] h-[300px] bg-primary-dark grid place-content-center"
 		>
-			<span
-				class="scale-[600%] transition-transform
-                   group-hover:scale-[570%]
-                   group-active:translate-y-2"
-				>{#if loading}
-					<div class="animate-spin w-min h-min">
-						<ProgessIcon />
-					</div>
-				{:else}
-					<UploadIcon />
-				{/if}
+			<span class="scale-[600%]">
+				<UserIcon />
 			</span>
 		</div>
-	{/if}
-</button>
+		{#if editing}
+			<div
+				class:opacity-90={selectedRelative.image}
+				class="absolute w-[300px] h-[300px] top-0 left-0 rounded-md bg-primary-dark grid place-content-center"
+			>
+				<span
+					class="scale-[600%] transition-transform
+                   group-hover:scale-[570%]
+                   group-active:translate-y-2"
+					>{#if loading}
+						<div class="animate-spin w-min h-min">
+							<ProgessIcon />
+						</div>
+					{:else}
+						<UploadIcon />
+					{/if}
+				</span>
+			</div>
+		{/if}
+	</button>
 
-<input
-	bind:this={fileInput}
-	class="hidden"
-	on:change={handleUpload}
-	type="file"
-	id="file-selector"
-	accept=".jpg, .jpeg, .png, .pdf"
-/>
+	<input
+		bind:this={fileInput}
+		class="hidden"
+		on:change={handleUpload}
+		type="file"
+		id="file-selector"
+		accept=".jpg, .jpeg, .png, .pdf"
+	/>
+{/if}

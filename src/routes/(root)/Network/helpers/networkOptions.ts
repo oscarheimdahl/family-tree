@@ -5,7 +5,7 @@ export const partnerColor = '#DD962C';
 export const networkOptions: Options = {
 	// // configure: true,
 	layout: {
-		randomSeed: 1
+		randomSeed: 1,
 		// hierarchical: {
 		// 	enabled: true,
 		// 	direction: 'UD',
@@ -14,11 +14,11 @@ export const networkOptions: Options = {
 	},
 	interaction: {
 		hover: false,
-		selectable: false,
-		dragNodes: false
+		// selectable: false,
+		dragNodes: false,
 	},
 	physics: {
-		enabled: false
+		enabled: false,
 		// hierarchicalRepulsion: {
 		// 	avoidOverlap: 1
 		// },
@@ -32,29 +32,37 @@ export const networkOptions: Options = {
 		// }
 	},
 	nodes: {
+		widthConstraint: {
+			minimum: 100,
+			maximum: 100,
+		},
 		shape: 'box',
 		shadow: {
 			color: '#00000066',
 			x: 0,
-			size: 20
+			size: 20,
 		},
 		font: {
-			color: 'white'
+			color: 'white',
+			size: 20,
 		},
 		color: {
 			background: relativeColor,
-			highlight: relativeColor,
+			highlight: {
+				border: 'white',
+				background: relativeColor,
+			},
 			hover: relativeColor,
-			border: relativeColor
+			border: relativeColor,
 		},
-		borderWidth: 10,
-		shapeProperties: { borderRadius: 1 },
-		physics: false
+		// borderWidth: 10,
+		shapeProperties: { borderRadius: 3 },
+		physics: false,
 	},
 	edges: {
 		length: 1,
 		color: '#ffffff',
 		// arrows: { to: { scaleFactor: 0.8, type: 'arrow', enabled: true } },
-		arrowStrikethrough: false
-	}
+		arrowStrikethrough: false,
+	},
 };

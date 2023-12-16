@@ -14,6 +14,10 @@ function commonOptions(node: MyNode) {
 export function partner(node: MyNode) {
 	node = relative(node);
 	node.color = {
+		highlight: {
+			border: 'white',
+			background: partnerColor,
+		},
 		background: partnerColor,
 		border: partnerColor,
 	};
@@ -22,7 +26,6 @@ export function partner(node: MyNode) {
 
 export function relative(node: MyNode) {
 	node = commonOptions(node);
-	node.widthConstraint = { minimum: 80, maximum: 80 };
 
 	return node;
 }

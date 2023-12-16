@@ -13,15 +13,16 @@
 	import CheckIcon from '$lib/icons/CheckIcon.svelte';
 
 	let supabase: SupabaseClientT;
+	let selectedRelativeId: string | undefined;
 	let selectedRelative: Relative | undefined;
 	let session: Session | null;
 	let open = false;
 
 	let editing = false;
-	let firstnameInput: string;
-	let lastnameInput: string;
-	let birthyearInput: number;
-	let descriptionInput: string;
+	let firstnameInput = '';
+	let lastnameInput = '';
+	let birthyearInput: number | null;
+	let descriptionInput = '';
 	let descriptionInputElement: HTMLTextAreaElement;
 
 	let loadingDBWrite = false;
@@ -32,12 +33,24 @@
 		session = val.session;
 		open = val.openDrawer;
 
-		selectedRelative = val.selectedRelative;
-		if (!selectedRelative) return;
-		firstnameInput = capitalizeFirstLetter(selectedRelative.firstname);
-		lastnameInput = capitalizeFirstLetter(selectedRelative.lastname);
-		birthyearInput = selectedRelative.birthyear ?? -1;
-		descriptionInput = selectedRelative?.description ?? '';
+		if (selectedRelativeId === val.selectedRelativeId) return;
+		selectedRelativeId = val.selectedRelativeId;
+		if (!selectedRelativeId) return;
+
+		supabase
+			.from('relatives')
+			.select()
+			.eq('id', selectedRelativeId)
+			.then((res) => {
+				const relative = res.data?.at(0);
+				if (!relative) return;
+				selectedRelative = relative;
+
+				firstnameInput = capitalizeFirstLetter(relative.firstname ?? '');
+				lastnameInput = capitalizeFirstLetter(relative.lastname ?? '');
+				birthyearInput = relative.birthyear;
+				descriptionInput = relative?.description ?? '';
+			});
 	});
 
 	let sendToSupabaseTimeout: NodeJS.Timeout;
@@ -46,11 +59,11 @@
 		loadingDBWrite = true;
 		clearTimeout(sendToSupabaseTimeout);
 		sendToSupabaseTimeout = setTimeout(async () => {
-			if (!selectedRelative) return;
+			if (!selectedRelativeId) return;
 			await supabase
 				.from('relatives')
 				.update({ ...relativeData })
-				.eq('id', selectedRelative.id)
+				.eq('id', selectedRelativeId)
 				.then((res) => {
 					loadingDBWrite = false;
 					savedDBWrite = true;
@@ -96,26 +109,28 @@
 			<CloseIcon />
 		</Button>
 	</div>
-	{#if selectedRelative}
+	{#if selectedRelativeId}
 		<div class="flex flex-col justify-between h-full">
 			<div class="flex flex-col gap-2">
-				<!-- <div class="mx-1 h-[2px] bg-accent-1 max-w-full" /> -->
+				<div class="mx-1 h-[2px] bg-accent-1 max-w-full" />
 				<Image {editing} {selectedRelative} />
 				{#if editing}
-					<div class="flex gap-2 justify-center">
+					<div class="flex gap-2 justify-center w-full">
 						<input
 							type="text"
 							class="text-2xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
-							size={firstnameInput.length}
+							size={firstnameInput?.length || 10}
 							bind:value={firstnameInput}
 							on:input={handleFirstnameInput}
+							placeholder="Firstname"
 						/>
 						<input
 							type="text"
 							class="text-2xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
-							size={lastnameInput.length}
+							size={lastnameInput?.length || 10}
 							bind:value={lastnameInput}
 							on:input={handleLastnameInput}
+							placeholder="Lastname"
 						/>
 					</div>
 				{:else}
@@ -150,7 +165,7 @@
 						class:resize-none={!editing}
 						class:text-black={editing}
 						style={`height: ${
-							descriptionInput.length * 2 + 40 + descriptionInput.split('\n').length * 20
+							descriptionInput?.length * 2 + 40 + descriptionInput.split('\n')?.length * 20
 						}px`}
 						value={descriptionInput || '-'}
 						bind:this={descriptionInputElement}

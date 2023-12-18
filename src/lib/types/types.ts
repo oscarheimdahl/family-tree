@@ -4,6 +4,7 @@ export interface MyNode extends Node {
 	partner?: boolean;
 	parentsId?: string;
 	relationshipId?: string;
+	familyLink?: boolean;
 }
 
 export interface Relative {

@@ -30,7 +30,8 @@ export function relative(node: MyNode) {
 	return node;
 }
 
-export function parentConnector(node: MyNode) {
+export function familyLink(node: MyNode) {
+	node.familyLink = true;
 	node = commonOptions(node);
 	node.color = {
 		background: '#ffffff',
@@ -39,7 +40,7 @@ export function parentConnector(node: MyNode) {
 
 	node.borderWidth = 0;
 	node.shapeProperties = { borderRadius: 90 };
-
+	node.label = '';
 	return node;
 }
 

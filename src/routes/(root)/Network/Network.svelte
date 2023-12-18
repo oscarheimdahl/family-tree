@@ -1,132 +1,146 @@
 <script lang="ts">
-	import Options from './Options.svelte';
-	import { partnerinator } from './helpers/partnerinator';
-	import { onMount } from 'svelte';
-	import { networkOptions } from './helpers/networkOptions';
-	import {
-		partner,
-		getPartnerPairs,
-		relative,
-		parentConnector as familyLink,
-		childConnector,
-	} from './helpers/styledNodes';
-	import { Network, type Edge } from 'vis-network';
-	import { DataSet } from 'vis-data';
-	import type { MyNode, Relative } from '$lib/types/types';
-	import { formatFullName } from './helpers/formatFullName';
 	import { setSelectedRelative, store } from '$lib/store';
+	import type { MyNode, Relative } from '$lib/types/types';
+	import { onMount } from 'svelte';
+	import { DataSet } from 'vis-data';
+	import { Network, type Edge } from 'vis-network';
+	import Options from './Options.svelte';
+	import { networkOptions } from './helpers/networkOptions';
+	import { childConnector, familyLink, partner, relative } from './helpers/styledNodes';
 
-	let network: Network | undefined;
-	let hierarchyMode = false;
 	let hidePartners = false;
 	let container: HTMLDivElement;
 	let nodes: DataSet<MyNode, 'id'>;
 
 	export let relatives: Relative[];
+
 	onMount(() => {
 		if (!relatives) return;
 		store.update((prev) => ({ ...prev, relatives }));
-		network = buildNetwork();
+
+		const network = buildNetwork(relatives);
 		network.on('click', (e) => {
 			setSelectedRelative('');
 			const nodeId = e.nodes[0];
 			if (!nodeId) return;
 			setSelectedRelative(nodeId);
 		});
+		store.subscribe((val) => {
+			const updatedNodes: MyNode[] = [];
+			nodes.forEach((node) => {
+				const stateRelative = val.relatives.find((relative) => {
+					return relative.id === node.id;
+				});
+				if (!stateRelative) return;
+				const newNode: MyNode = {
+					...node,
+					label: labeler(stateRelative, { noLabel: !!node.familyLink }),
+				};
+				updatedNodes.push(newNode);
+			});
+			nodes.update(updatedNodes);
+		});
 	});
 
-	function buildNetwork() {
-		if (!relatives) throw new Error('No relatives data');
+	function labeler(relative?: Relative, options?: { noLabel: boolean }) {
+		if (options?.noLabel) return '';
+		const firstname = relative?.firstname ?? '';
+		const lastname = relative?.lastname ?? '';
+		const name = `${firstname} ${lastname}`;
+		if (name.trim().length > 0) return name;
+		return relative?.id;
+	}
+
+	function relativeToNodeCreator(relatives: Relative[]) {
+		return function relativeToNode(id: string) {
+			const relative = relatives.find((relative) => {
+				return relative.id === id;
+			});
+			const label = labeler(relative);
+			return { label, id };
+		};
+	}
+
+	function buildNetwork(relatives: Relative[]) {
 		const yStep = 200;
 		const augustaPos = 2000;
+		const relativeToNode = relativeToNodeCreator(relatives);
+
 		const nodesList: MyNode[] = [
 			relative({
-				id: 'larsolof-pettersson',
-				label: 'Lars Olof Pettersson',
-				relationshipId: 'larsolof-pettersson_larsolofwife',
+				...relativeToNode('larsolof-pettersson'),
+				relationshipId: 'larsolof-pettersson_larolofwife',
 				x: 500,
 				y: 0 * yStep,
 			}),
 			familyLink({
-				id: 'larsolof-pettersson_larsolofwife',
-				label: '',
+				...relativeToNode('larsolof-pettersson_larsolofwife'),
 				x: 600,
 				y: 0 * yStep,
 			}),
 			partner({
-				id: 'larsolofwife',
+				...relativeToNode('larsolofwife'),
 				relationshipId: 'larsolof-pettersson_larsolofwife',
-				label: '?\n',
 				x: 700,
 				y: 0 * yStep,
 			}),
 			relative({
-				id: 'larsolof-pettersson2',
-				label: 'Lars Olof Pettersson',
+				...relativeToNode('larsolof-pettersson2'),
 				parentsId: 'larsolof-pettersson_larsolofwife',
 				relationshipId: 'larsolof-pettersson2_josefinaamalia-pettersson',
 				x: -900,
 				y: 1 * yStep,
 			}),
 			relative({
-				id: 'albert-pettersson',
-				label: 'Albert Pettersson',
+				...relativeToNode('albert-pettersson'),
 				parentsId: 'larsolof-pettersson_larsolofwife',
 				x: -500,
 				y: 1 * yStep,
 			}),
 			relative({
-				id: 'emma-pettersson',
-				label: 'Emma Pettersson',
+				...relativeToNode('emma-pettersson'),
 				parentsId: 'larsolof-pettersson_larsolofwife',
 				x: -300,
 				y: 1 * yStep,
 			}),
 			relative({
-				id: 'augusta-pettersson',
-				label: 'Augusta Pettersson',
+				...relativeToNode('augusta-pettersson'),
 				parentsId: 'larsolof-pettersson_larsolofwife',
 				relationshipId: 'augusta-pettersson_augustahusband',
 				x: augustaPos,
 				y: 1 * yStep,
 			}),
 			familyLink({
-				id: 'augusta-pettersson_augustahusband',
-				label: '',
+				...relativeToNode('augusta-pettersson_augustahusband'),
 				x: augustaPos + 100,
 				y: 1 * yStep,
 			}),
 			partner({
-				id: 'augustahusband',
+				...relativeToNode('augustahusband'),
 				relationshipId: 'augusta-pettersson_augustahusband',
-				label: '?\n',
 				x: augustaPos + 200,
 				y: 1 * yStep,
 			}),
 			relative({
-				id: 'lenay',
-				label: 'Lenay\n',
+				...relativeToNode('lenay'),
 				parentsId: 'augusta-pettersson_augustahusband',
 				relationshipId: 'lenay_lenayhusband',
 				x: augustaPos - 200,
 				y: 2 * yStep,
 			}),
 			familyLink({
-				id: 'lenay_lenayhusband',
-				label: '',
+				...relativeToNode('lenay_lenayhusband'),
 				x: augustaPos - 100,
 				y: 2 * yStep,
 			}),
 			partner({
-				id: 'lenayhusband',
-				label: '?\n',
+				...relativeToNode('lenayhusband'),
 				relationshipId: 'lenay_lenayhusband',
 				x: augustaPos,
 				y: 2 * yStep,
 			}),
 			relative({
-				id: 'lester',
-				label: 'Lester\n',
+				...relativeToNode('lester'),
 				parentsId: 'lenay_lenayhusband',
 				relationshipId: 'lester_lesterwife',
 				x: augustaPos - 100,
@@ -138,31 +152,27 @@
 				y: 3 * yStep,
 			}),
 			partner({
-				id: 'lesterwife',
+				...relativeToNode('lesterwife'),
 				relationshipId: 'lester_lesterwife',
-				label: '?\n',
 				x: augustaPos + 100,
 				y: 3 * yStep,
 			}),
 			relative({
-				id: 'george',
+				...relativeToNode('george'),
 				parentsId: 'lester_lesterwife',
-				label: 'George\n',
 				x: augustaPos - 200,
 				y: 4 * yStep,
 			}),
 			relative({
-				id: 'chris',
+				...relativeToNode('chris'),
 				parentsId: 'lester_lesterwife',
-				label: 'Chris\n',
 				x: augustaPos,
 				y: 4 * yStep,
 			}),
 			relative({
-				id: 'cathy',
+				...relativeToNode('cathy'),
 				parentsId: 'lester_lesterwife',
 				relationshipId: 'cathy_cathyhusband',
-				label: 'Cathy\n',
 				x: augustaPos + 200,
 				y: 4 * yStep,
 			}),
@@ -172,153 +182,132 @@
 				y: 4 * yStep,
 			}),
 			partner({
-				id: 'cathyhusband',
+				...relativeToNode('cathyhusband'),
 				relationshipId: 'cathy_cathyhusband',
-				label: '?\n',
 				x: augustaPos + 400,
 				y: 4 * yStep,
 			}),
 			relative({
-				id: 'taylor',
+				...relativeToNode('taylor'),
 				parentsId: 'cathy_cathyhusband',
-				label: 'Taylor\n',
 				x: augustaPos + 200,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'patrick',
+				...relativeToNode('patrick'),
 				parentsId: 'cathy_cathyhusband',
-				label: 'Patrick\n',
 				x: augustaPos + 400,
 				y: 5 * yStep,
 			}),
 
 			relative({
-				id: 'clyde',
-				label: 'Clyde\n',
+				...relativeToNode('clyde'),
 				parentsId: 'augusta-pettersson_augustahusband',
 				relationshipId: 'clyde_clydewife',
 				x: augustaPos + 400,
 				y: 2 * yStep,
 			}),
 			familyLink({
-				id: 'clyde_clydewife',
-				label: '',
+				...relativeToNode('clyde_clydewife'),
 				x: augustaPos + 500,
 				y: 2 * yStep,
 			}),
 			partner({
-				id: 'clydewife',
-				label: '?\n',
+				...relativeToNode('clydewife'),
 				relationshipId: 'clyde_clydewife',
 				x: augustaPos + 600,
 				y: 2 * yStep,
 			}),
 			relative({
-				id: 'robert',
-				label: 'Robert\n',
+				...relativeToNode('robert'),
 				parentsId: 'clyde_clydewife',
 				x: augustaPos + 400,
 				y: 3 * yStep,
 			}),
 			relative({
-				id: 'howard',
-				label: 'Howard\n',
+				...relativeToNode('howard'),
 				parentsId: 'clyde_clydewife',
 				x: augustaPos + 600,
 				y: 3 * yStep,
 			}),
 
 			familyLink({
-				id: 'larsolof-pettersson2_josefinaamalia-pettersson',
-				label: '',
+				...relativeToNode('larsolof-pettersson2_josefinaamalia-pettersson'),
 				x: -800,
 				y: 1 * yStep,
 			}),
 			partner({
-				id: 'josefinaamalia-pettersson',
+				...relativeToNode('josefinaamalia-pettersson'),
 				relationshipId: 'larsolof-pettersson2_josefinaamalia-pettersson',
-				label: 'Josefina Amalia Pettersson',
 				x: -700,
 				y: 1 * yStep,
 			}),
 
 			relative({
-				id: 'berta-pettersson',
-				label: 'Berta Pettersson',
+				...relativeToNode('berta-pettersson'),
 				parentsId: 'larsolof-pettersson2_josefinaamalia-pettersson',
 				x: -500,
 				y: 2 * yStep,
 			}),
 			relative({
-				id: 'josef-pettersson',
-				label: 'Josef Pettersson',
+				...relativeToNode('josef-pettersson'),
 				parentsId: 'larsolof-pettersson2_josefinaamalia-pettersson',
 				x: -700,
 				y: 2 * yStep,
 			}),
 			relative({
-				id: 'sigge-pettersson',
-				label: 'Sigge Pettersson',
+				...relativeToNode('sigge-pettersson'),
 				parentsId: 'larsolof-pettersson2_josefinaamalia-pettersson',
 				x: -900,
 				y: 2 * yStep,
 			}),
 			relative({
-				id: 'lambert-pettersson',
-				label: 'Lambert Pettersson',
+				...relativeToNode('lambert-pettersson'),
 				parentsId: 'larsolof-pettersson2_josefinaamalia-pettersson',
 				x: -1100,
 				y: 2 * yStep,
 			}),
 			relative({
-				id: 'emil-pettersson',
-				label: 'Emil Pettersson',
+				...relativeToNode('emil-pettersson'),
 				parentsId: 'larsolof-pettersson2_josefinaamalia-pettersson',
 				x: -1300,
 				y: 2 * yStep,
 			}),
 
 			relative({
-				id: 'manne-pettersson',
-				label: 'Manne Pettersson',
+				...relativeToNode('manne-pettersson'),
 				relationshipId: 'manne-pettersson_mannewife',
 				parentsId: 'larsolof-pettersson2_josefinaamalia-pettersson',
 				x: -300,
 				y: 2 * yStep,
 			}),
 			familyLink({
-				id: 'manne-pettersson_mannewife',
-				label: '',
+				...relativeToNode('manne-pettersson_mannewife'),
 				x: -200,
 				y: 2 * yStep,
 			}),
 			partner({
-				id: 'mannewife',
+				...relativeToNode('mannewife'),
 				relationshipId: 'manne-pettersson_mannewife',
-				label: '?\n',
 				x: -100,
 				y: 2 * yStep,
 			}),
 
 			// Rune
 			relative({
-				id: 'rune-pettersson',
-				label: 'Rune Pettersson',
+				...relativeToNode('rune-pettersson'),
 				parentsId: 'manne-pettersson_mannewife',
 				relationshipId: 'rune-pettersson_kerstin-pettersson',
 				x: -200,
 				y: 3 * yStep,
 			}),
 			familyLink({
-				id: 'rune-pettersson_kerstin-pettersson',
-				label: '',
+				...relativeToNode('rune-pettersson_kerstin-pettersson'),
 				x: -100,
 				y: 3 * yStep,
 			}),
 			partner({
-				id: 'kerstin-pettersson',
-				label: 'Kerstin Pettersson',
+				...relativeToNode('kerstin-pettersson'),
 				relationshipId: 'rune-pettersson_kerstin-pettersson',
 				x: 0,
 				y: 3 * yStep,
@@ -326,64 +315,55 @@
 
 			// Johan
 			relative({
-				id: 'johan-pettersson',
-				label: 'Johan Pettersson',
+				...relativeToNode('johan-pettersson'),
 				parentsId: 'rune-pettersson_kerstin-pettersson',
 				relationshipId: 'johan-pettersson_ingela-heimdahl',
 				x: 0,
 				y: 4 * yStep,
 			}),
 			familyLink({
-				id: 'johan-pettersson_ingela-heimdahl',
-				label: '',
+				...relativeToNode('johan-pettersson_ingela-heimdahl'),
 				x: 100,
 				y: 4 * yStep,
 			}),
 			partner({
-				id: 'ingela-heimdahl',
-				label: 'Ingela Heimdahl',
+				...relativeToNode('ingela-heimdahl'),
 				relationshipId: 'johan-pettersson_ingela-heimdahl',
 				x: 200,
 				y: 4 * yStep,
 			}),
 			relative({
-				id: 'lina-heimdahl',
-				label: 'Lina Heimdahl',
+				...relativeToNode('lina-heimdahl'),
 				parentsId: 'johan-pettersson_ingela-heimdahl',
 				x: -400,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'gustav-heimdahl',
-				label: 'Gustav Heimdahl',
+				...relativeToNode('gustav-heimdahl'),
 				parentsId: 'johan-pettersson_ingela-heimdahl',
 				x: -200,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'oscar-heimdahl',
-				label: 'Oscar Heimdahl',
+				...relativeToNode('oscar-heimdahl'),
 				parentsId: 'johan-pettersson_ingela-heimdahl',
 				x: 0,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'anna-heimdahl',
-				label: 'Anna Heimdahl',
+				...relativeToNode('anna-heimdahl'),
 				parentsId: 'johan-pettersson_ingela-heimdahl',
 				x: 200,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'agnes-heimdahl',
-				label: 'Agnes Heimdahl',
+				...relativeToNode('agnes-heimdahl'),
 				parentsId: 'johan-pettersson_ingela-heimdahl',
 				x: 400,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'elsa-heimdahl',
-				label: 'Elsa Heimdahl',
+				...relativeToNode('elsa-heimdahl'),
 				parentsId: 'johan-pettersson_ingela-heimdahl',
 				x: 600,
 				y: 5 * yStep,
@@ -391,201 +371,173 @@
 
 			// Eva
 			relative({
-				id: 'eva-pettersson',
-				label: 'Eva Pettersson',
+				...relativeToNode('eva-pettersson'),
 				parentsId: 'rune-pettersson_kerstin-pettersson',
 				relationshipId: 'eva-pettersson_prayadh-kullapa',
 				x: -1550,
 				y: 4 * yStep,
 			}),
 			familyLink({
-				id: 'eva-pettersson_prayadh-kullapa',
-				label: '',
+				...relativeToNode('eva-pettersson_prayadh-kullapa'),
 				x: -1450,
 				y: 4 * yStep,
 			}),
 			partner({
-				id: 'prayadh-kullapa',
-				label: 'Prayadh Kullapa',
+				...relativeToNode('prayadh-kullapa'),
 				relationshipId: 'eva-pettersson_prayadh-kullapa',
 				x: -1350,
 				y: 4 * yStep,
 			}),
 			relative({
-				id: 'åsa-kullapa',
+				...relativeToNode('åsa-kullapa'),
 				parentsId: 'eva-pettersson_prayadh-kullapa',
 				relationshipId: 'åsa-kullapa_vince-alaras',
-				label: 'Åsa Kullapa',
 				x: -2000,
 				y: 5 * yStep,
 			}),
 			familyLink({
-				id: 'åsa-kullapa_vince-alaras',
-				label: '',
+				...relativeToNode('åsa-kullapa_vince-alaras'),
 				x: -1900,
 				y: 5 * yStep,
 			}),
 			partner({
-				id: 'vince-alaras',
-				label: 'Vince Alaras',
+				...relativeToNode('vince-alaras'),
 				relationshipId: 'åsa-kullapa_vince-alaras',
 				x: -1800,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'clara-kullapa',
+				...relativeToNode('clara-kullapa'),
 				parentsId: 'åsa-kullapa_vince-alaras',
-				label: 'Clara Kullapa',
 				x: -2100,
 				y: 6 * yStep,
 			}),
 			relative({
-				id: 'alva-kullapa',
+				...relativeToNode('alva-kullapa'),
 				parentsId: 'åsa-kullapa_vince-alaras',
-				label: 'Alva Kullapa',
 				x: -1900,
 				y: 6 * yStep,
 			}),
 			relative({
-				id: 'ella-kullapa',
+				...relativeToNode('ella-kullapa'),
 				parentsId: 'åsa-kullapa_vince-alaras',
-				label: 'Ella Kullapa',
 				x: -1700,
 				y: 6 * yStep,
 			}),
 			relative({
-				id: 'malin-kullapa',
+				...relativeToNode('malin-kullapa'),
 				parentsId: 'eva-pettersson_prayadh-kullapa',
 				relationshipId: 'malin-kullapa_john-malmlund',
-				label: 'Malin Kullapa',
 				x: -1400,
 				y: 5 * yStep,
 			}),
 			familyLink({
-				id: 'malin-kullapa_john-malmlund',
-				label: '',
+				...relativeToNode('malin-kullapa_john-malmlund'),
 				x: -1300,
 				y: 5 * yStep,
 			}),
 			partner({
-				id: 'john-malmlund',
+				...relativeToNode('john-malmlund'),
 				relationshipId: 'malin-kullapa_john-malmlund',
-				label: 'John Malmlund',
 				x: -1200,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'olive-kullapa',
+				...relativeToNode('olive-kullapa'),
 				parentsId: 'malin-kullapa_john-malmlund',
-				label: 'Olive Kullapa',
 				x: -1400,
 				y: 6 * yStep,
 			}),
 			relative({
-				id: 'zoe-kullapa',
+				...relativeToNode('zoe-kullapa'),
 				parentsId: 'malin-kullapa_john-malmlund',
-				label: 'Zoe Kullapa',
 				x: -1200,
 				y: 6 * yStep,
 			}),
 			relative({
-				id: 'dan-kullapa',
+				...relativeToNode('dan-kullapa'),
 				parentsId: 'eva-pettersson_prayadh-kullapa',
 				relationshipId: 'dan-kullapa_therese-vindahl',
-				label: 'Dan Kullapa',
 				x: -900,
 				y: 5 * yStep,
 			}),
 			familyLink({
-				id: 'dan-kullapa_therese-vindahl',
-				label: '',
+				...relativeToNode('dan-kullapa_therese-vindahl'),
 				x: -800,
 				y: 5 * yStep,
 			}),
 			partner({
-				id: 'therese-vindahl',
+				...relativeToNode('therese-vindahl'),
 				relationshipId: 'dan-kullapa_therese-vindahl',
-				label: 'Therese Vindahl',
 				x: -700,
 				y: 5 * yStep,
 			}),
 
 			relative({
-				id: 'viola-kullapa',
+				...relativeToNode('viola-kullapa'),
 				parentsId: 'dan-kullapa_therese-vindahl',
-				label: 'Viola Kullapa',
 				x: -900,
 				y: 6 * yStep,
 			}),
 			relative({
-				id: 'baby-kullapa',
+				...relativeToNode('baby-kullapa'),
 				parentsId: 'dan-kullapa_therese-vindahl',
-				label: 'Baby Kullapa',
 				x: -700,
 				y: 6 * yStep,
 			}),
 
 			// Hanna
 			relative({
-				id: 'hanna-asp',
-				label: 'Hanna\nAsp',
+				...relativeToNode('hanna-asp'),
 				parentsId: 'rune-pettersson_kerstin-pettersson',
 				relationshipId: 'hanna-asp_petter-asp',
 				x: 1100,
 				y: 4 * yStep,
 			}),
 			familyLink({
-				id: 'hanna-asp_petter-asp',
-				label: '',
+				...relativeToNode('hanna-asp_petter-asp'),
 				x: 1200,
 				y: 4 * yStep,
 			}),
 			partner({
-				id: 'petter-asp',
-				label: 'Petter\nAsp',
+				...relativeToNode('petter-asp'),
 				relationshipId: 'hanna-asp_petter-asp',
 				x: 1300,
 				y: 4 * yStep,
 			}),
 			relative({
-				id: 'ebba-asp',
+				...relativeToNode('ebba-asp'),
 				parentsId: 'hanna-asp_petter-asp',
 				relationshipId: 'ebba-asp_sebastian-lind',
-				label: 'Ebba\nAsp',
 				x: 900,
 				y: 5 * yStep,
 			}),
 			familyLink({
-				id: 'ebba-asp_sebastian-lind',
-				label: '',
+				...relativeToNode('ebba-asp_sebastian-lind'),
 				x: 1000,
 				y: 5 * yStep,
 			}),
 			partner({
-				id: 'sebastian-lind',
+				...relativeToNode('sebastian-lind'),
 				relationshipId: 'ebba-asp_sebastian-lind',
-				label: 'Sebastian Lind',
 				x: 1100,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'ted-asp',
+				...relativeToNode('ted-asp'),
 				parentsId: 'ebba-asp_sebastian-lind',
-				label: 'Ted\nAsp?',
 				x: 1000,
 				y: 6 * yStep,
 			}),
 			relative({
-				id: 'erik-asp',
+				...relativeToNode('erik-asp'),
 				parentsId: 'hanna-asp_petter-asp',
-				label: 'Erik\nAsp',
 				x: 1300,
 				y: 5 * yStep,
 			}),
 			relative({
-				id: 'arvid-asp',
+				...relativeToNode('arvid-asp'),
 				parentsId: 'hanna-asp_petter-asp',
-				label: 'Arvid\nAsp',
 				x: 1500,
 				y: 5 * yStep,
 			}),
@@ -650,6 +602,7 @@
 			networkOptions,
 		);
 	}
+
 	function handleHidePartnerClick() {
 		hidePartners = !hidePartners;
 		const nodesToUpdate: MyNode[] = [];

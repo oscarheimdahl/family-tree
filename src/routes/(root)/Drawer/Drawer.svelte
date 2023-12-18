@@ -68,6 +68,17 @@
 					loadingDBWrite = false;
 					savedDBWrite = true;
 					setTimeout(() => (savedDBWrite = false), 3000);
+
+					store.update((val) => {
+						val.relatives = val.relatives.map((relative) => {
+							if (relative.id !== selectedRelativeId) return relative;
+							return {
+								...relative,
+								...relativeData,
+							};
+						});
+						return val;
+					});
 				});
 		}, 500);
 	}
@@ -119,7 +130,7 @@
 						<input
 							type="text"
 							class="text-2xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
-							size={firstnameInput?.length || 10}
+							size={10}
 							bind:value={firstnameInput}
 							on:input={handleFirstnameInput}
 							placeholder="Firstname"
@@ -127,7 +138,7 @@
 						<input
 							type="text"
 							class="text-2xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
-							size={lastnameInput?.length || 10}
+							size={10}
 							bind:value={lastnameInput}
 							on:input={handleLastnameInput}
 							placeholder="Lastname"
@@ -165,7 +176,7 @@
 						class:resize-none={!editing}
 						class:text-black={editing}
 						style={`height: ${
-							descriptionInput?.length * 2 + 40 + descriptionInput.split('\n')?.length * 20
+							descriptionInput?.length + 40 + descriptionInput.split('\n')?.length * 10
 						}px`}
 						value={descriptionInput || '-'}
 						bind:this={descriptionInputElement}

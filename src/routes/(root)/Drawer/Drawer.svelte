@@ -126,26 +126,26 @@
 				<div class="mx-1 h-[2px] bg-accent-1 max-w-full" />
 				<Image {editing} {selectedRelative} />
 				{#if editing}
-					<div class="flex gap-2 justify-center w-full">
+					<div class="flex gap-2 w-full h-8">
 						<input
 							type="text"
-							class="text-2xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
-							size={10}
+							size={5}
+							class="text-2xl font-semibold text-black bg-none w-1/2 rounded-sm px-2"
 							bind:value={firstnameInput}
 							on:input={handleFirstnameInput}
 							placeholder="Firstname"
 						/>
 						<input
 							type="text"
-							class="text-2xl font-semibold text-black bg-none rounded-sm px-2 -translate-x-2"
-							size={10}
+							size={5}
+							class="text-2xl font-semibold text-black bg-none w-1/2 rounded-sm px-2"
 							bind:value={lastnameInput}
 							on:input={handleLastnameInput}
 							placeholder="Lastname"
 						/>
 					</div>
 				{:else}
-					<div class="flex justify-center">
+					<div class="flex justify-center h-8">
 						<h1 class="text-3xl -ml-2 font-semibold w-fit">
 							{firstnameInput}{' '}
 							{lastnameInput}

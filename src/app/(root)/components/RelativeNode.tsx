@@ -14,19 +14,11 @@ import {
   relativesAtom,
   selectedToolAtom,
 } from '@/store/store';
-import {
-  ConnectionSource,
-  ConnectionType,
-  type RelativeNodeType,
-} from '@/types/types';
+import { ConnectionSource, ConnectionType, type RelativeNodeType } from '@/types/types';
 
 export const CARD_WIDTH = 160;
 
-export const RelativeNode = ({
-  relativeNode,
-}: {
-  relativeNode: RelativeNodeType;
-}) => {
+export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType }) => {
   const { id, x, y, name, description } = relativeNode;
   const [newConnectionSource] = useAtom(newConnectionSourceAtom);
   const [, setDraggedRelative] = useAtom(draggedRelativeAtom);
@@ -37,7 +29,7 @@ export const RelativeNode = ({
 
   return (
     <div
-      onMouseDown={(e) => setDraggedRelative(id)}
+      onMouseDown={() => setDraggedRelative(id)}
       style={{ transform: `translate(${x}px, ${y}px)`, width: CARD_WIDTH }}
       className={`absolute`}
     >
@@ -51,9 +43,7 @@ export const RelativeNode = ({
           className={cn(
             'pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 p-2 pt-10',
             selectedTool === 'edit' && 'cursor-auto',
-            newConnectionSource &&
-              newConnectionSource !== id &&
-              'cursor-pointer ring-white hover:ring',
+            newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-white hover:ring',
           )}
         >
           <div className="absolute -top-6 left-1/2 size-16 -translate-x-1/2 rounded-full bg-slate-800 ring ring-white"></div>
@@ -95,9 +85,7 @@ export const RelativeNode = ({
 
 const NewConnectionSourceButton = ({ id }: { id: string }) => {
   const [selectedTool] = useAtom(selectedToolAtom);
-  const [newConnectionSource, setNewConnectionSource] = useAtom(
-    newConnectionSourceAtom,
-  );
+  const [newConnectionSource, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
 
   if (selectedTool !== 'add-connection') return null;
 
@@ -132,9 +120,7 @@ const DeleteButton = ({ id }: { id: string }) => {
           return prev.filter((relative) => relative.id !== id);
         });
         setConnections((prev) => {
-          return prev.filter((connection) =>
-            connectionIncludesId(connection, id),
-          );
+          return prev.filter((connection) => connectionIncludesId(connection, id));
         });
       }}
       variant={'destructive'}
@@ -145,17 +131,10 @@ const DeleteButton = ({ id }: { id: string }) => {
   );
 };
 
-function connectionIncludesId(
-  connection: ConnectionType,
-  id: ConnectionSource,
-) {
-  if (typeof connection.source === 'string' && connection.source === id)
-    return false;
-  if (typeof connection.target === 'string' && connection.target === id)
-    return false;
-  if (typeof connection.source === 'object' && connection.source.parent1 === id)
-    return false;
-  if (typeof connection.source === 'object' && connection.source.parent2 === id)
-    return false;
+function connectionIncludesId(connection: ConnectionType, id: ConnectionSource) {
+  if (typeof connection.source === 'string' && connection.source === id) return false;
+  if (typeof connection.target === 'string' && connection.target === id) return false;
+  if (typeof connection.source === 'object' && connection.source.parent1 === id) return false;
+  if (typeof connection.source === 'object' && connection.source.parent2 === id) return false;
   return true;
 }

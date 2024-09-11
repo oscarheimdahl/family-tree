@@ -6,15 +6,12 @@ import { Cable, Edit2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Toggle } from '@/components/ui/toggle';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { relativesAtom, selectedToolAtom } from '@/store/store';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { canvasOffsetAtom, relativesAtom, selectedToolAtom } from '@/store/store';
 
 export const Tools = () => {
   const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
+  const [canvasOffset] = useAtom(canvasOffsetAtom);
   const [, setRelatives] = useAtom(relativesAtom);
   const [newRelativesCreated, setNewRelativesCreated] = useState(0);
 
@@ -33,8 +30,8 @@ export const Tools = () => {
       ...prev,
       {
         id: crypto.randomUUID(),
-        x: window.innerWidth / 2 + newRelativesCreated * 10,
-        y: window.innerHeight / 2 + newRelativesCreated * 10,
+        x: -canvasOffset.x + window.innerWidth / 2 + newRelativesCreated * 10,
+        y: -canvasOffset.y + window.innerHeight / 2 + newRelativesCreated * 10,
         name: 'New Relative',
         description: '',
       },
@@ -58,9 +55,7 @@ export const Tools = () => {
         <Separator className="w-3/4 self-center" />
         <TooltipToggle tooltip="Add Connection">
           <Toggle
-            onPressedChange={(pressed) =>
-              setSelectedTool(pressed ? 'add-connection' : undefined)
-            }
+            onPressedChange={(pressed) => setSelectedTool(pressed ? 'add-connection' : undefined)}
             pressed={selectedTool === 'add-connection'}
           >
             <Cable />
@@ -68,9 +63,7 @@ export const Tools = () => {
         </TooltipToggle>
         <TooltipToggle tooltip="Edit Relatives">
           <Toggle
-            onPressedChange={(pressed) =>
-              setSelectedTool(pressed ? 'edit' : undefined)
-            }
+            onPressedChange={(pressed) => setSelectedTool(pressed ? 'edit' : undefined)}
             pressed={selectedTool === 'edit'}
           >
             <Edit2 />
@@ -81,13 +74,7 @@ export const Tools = () => {
   );
 };
 
-const TooltipToggle = ({
-  tooltip,
-  children,
-}: {
-  tooltip: string;
-  children: ReactNode;
-}) => {
+const TooltipToggle = ({ tooltip, children }: { tooltip: string; children: ReactNode }) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>

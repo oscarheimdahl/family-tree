@@ -14,7 +14,7 @@ export const Line = ({
   onClick?: () => void;
 }) => {
   return (
-    <svg className="pointer-events-none absolute left-0 top-0 h-full w-full">
+    <svg className="pointer-events-none absolute left-0 top-0 h-full w-full ring">
       <g className="group">
         <line
           className={cn('stroke-black', onClick && 'group-hover:stroke-white')}
@@ -25,10 +25,7 @@ export const Line = ({
           y2={y2}
         ></line>
         <line
-          className={cn(
-            'pointer-events-auto',
-            onClick && 'cursor-pointer hover:opacity-50',
-          )}
+          className={cn(onClick && 'pointer-events-auto cursor-pointer hover:opacity-50')}
           onClick={onClick}
           stroke={'transparent'}
           strokeWidth={25}

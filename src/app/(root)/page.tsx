@@ -6,6 +6,7 @@ import { connectionsAtom, relativesAtom } from '@/store/store';
 
 import { CanvasContainer } from './components/Canvas';
 import { Connection } from './components/Connection';
+// import { Cursor } from './components/Cursor';
 import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
 import { Tools } from './components/Tools';
@@ -20,20 +21,14 @@ export default function Home() {
         <NewConnectionLine />
 
         {connections.map((connection, i) => {
-          return (
-            <Connection
-              fromId={connection.source}
-              toId={connection.target}
-              relativeNodes={relatives}
-              key={i}
-            />
-          );
+          return <Connection fromId={connection.source} toId={connection.target} key={i} />;
         })}
         <div className="pointer-events-none absolute left-0 top-0 h-full w-full">
           {relatives.map((relativeNode, i) => {
             return <RelativeNode key={i} relativeNode={relativeNode} />;
           })}
         </div>
+        {/* <Cursor /> */}
       </CanvasContainer>
       <Tools />
     </>

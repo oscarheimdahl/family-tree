@@ -1,23 +1,14 @@
 import { useAtom, useAtomValue } from 'jotai';
 
 import { useFinalizeConnection } from '@/store/hooks';
-import { newConnectionSourceAtom, selectedToolAtom } from '@/store/store';
+import { newConnectionSourceAtom, relativesAtom, selectedToolAtom } from '@/store/store';
 import { ConnectionSource, RelativeNodeType } from '@/types/types';
 
 import { Line } from './Line';
 
-export const Connection = ({
-  fromId,
-  toId,
-  relativeNodes,
-}: {
-  fromId: ConnectionSource;
-  toId: string;
-  relativeNodes: RelativeNodeType[];
-}) => {
-  const [newConnectionSource, setNewConnectionSource] = useAtom(
-    newConnectionSourceAtom,
-  );
+export const Connection = ({ fromId, toId }: { fromId: ConnectionSource; toId: string }) => {
+  const [newConnectionSource, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
+  const [relativeNodes] = useAtom(relativesAtom);
   const selectedTool = useAtomValue(selectedToolAtom);
   const finalizeConnection = useFinalizeConnection();
 
@@ -37,8 +28,7 @@ export const Connection = ({
         onClick={
           selectedTool === 'add-connection'
             ? () => {
-                if (newConnectionSource === undefined)
-                  setNewConnectionSource({ parent1: from.id, parent2: to.id });
+                if (newConnectionSource === undefined) setNewConnectionSource({ parent1: from.id, parent2: to.id });
                 else if (
                   // If same id as set below, we cancel
                   typeof newConnectionSource !== 'string' &&

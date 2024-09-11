@@ -1,21 +1,26 @@
 'use client';
 
-import React, { ReactNode, useRef, useState, type MouseEvent } from 'react';
+import { ReactNode, useRef, useState, WheelEvent, type MouseEvent } from 'react';
 
 import { useAtom } from 'jotai';
 
 import {
   canvasOffsetAtom,
-  connectionsAtom,
+  canvasZoomAtom,
   draggedRelativeAtom,
   mousePositionAtom,
+  newConnectionSourceAtom,
   relativesAtom,
   selectedToolAtom,
 } from '@/store/store';
 
+export const CANVAS_WIDTH = 5000;
+export const CANVAS_HEIGHT = 5000;
+
 export const CanvasContainer = ({ children }: { children: ReactNode }) => {
   const [canDrag, setCanDrag] = useState(false);
-  const [offset, setOffset] = useAtom(canvasOffsetAtom);
+  const [, setOffset] = useAtom(canvasOffsetAtom);
+  const [, setZoom] = useAtom(canvasZoomAtom);
 
   const handleCanvasMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     setCanDrag(true);
@@ -35,11 +40,30 @@ export const CanvasContainer = ({ children }: { children: ReactNode }) => {
     setCanDrag(false);
   };
 
+  const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
+    const delta = e.deltaY;
+
+    if (Math.abs(delta) < 10) return;
+    if (delta < 0)
+      setZoom((prev) => {
+        const newZoom = prev + 0.1;
+        return Math.min(newZoom, 2);
+      });
+    else
+      setZoom((prev) => {
+        const newZoom = prev - 0.1;
+        return Math.max(newZoom, 0.4);
+      });
+  };
+
   return (
-    <div onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} className="h-full w-full bg-gray-700">
-      <Canvas offset={offset} onMouseDown={handleCanvasMouseDown}>
-        {children}
-      </Canvas>
+    <div
+      onWheel={handleScroll}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      className="h-full w-full overflow-hidden bg-gray-700"
+    >
+      <Canvas onMouseDown={handleCanvasMouseDown}>{children}</Canvas>
     </div>
   );
 };
@@ -47,17 +71,19 @@ export const CanvasContainer = ({ children }: { children: ReactNode }) => {
 const Canvas = ({
   children,
   onMouseDown,
-  offset,
 }: {
   children: ReactNode;
   onMouseDown: (e: MouseEvent<HTMLDivElement>) => void;
-  offset: { x: number; y: number };
 }) => {
+  const [offset] = useAtom(canvasOffsetAtom);
+  const [zoom] = useAtom(canvasZoomAtom);
+
   const canvasRef = useRef<HTMLDivElement>(null);
   const [, setRelatives] = useAtom(relativesAtom);
   const [draggedRelative, setDraggedRelative] = useAtom(draggedRelativeAtom);
   const [, setMousePosition] = useAtom(mousePositionAtom);
   const [, setSelectedTool] = useAtom(selectedToolAtom);
+  const [, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
 
   const handleMouseUp = () => {
     setDraggedRelative(undefined);
@@ -83,8 +109,8 @@ const Canvas = ({
         if (relative.id === draggedRelative) {
           return {
             ...relative,
-            x: clamp(0, relative.x + e.movementX, window.innerWidth),
-            y: clamp(0, relative.y + e.movementY, window.innerHeight),
+            x: clamp(0, relative.x + e.movementX / zoom, CANVAS_WIDTH),
+            y: clamp(0, relative.y + e.movementY / zoom, CANVAS_HEIGHT),
           };
         }
         return relative;
@@ -94,24 +120,29 @@ const Canvas = ({
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     handleRelativeDrag(e);
-    setMousePosition({ x: e.clientX, y: e.clientY });
+    setMousePosition({ x: e.clientX / zoom - offset.x / zoom, y: e.clientY / zoom - offset.y / zoom });
+  };
+
+  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
+    if (e.target !== canvasRef.current) return;
+    setSelectedTool(undefined);
+    setNewConnectionSource(undefined);
   };
 
   return (
     <div
       ref={canvasRef}
-      onClick={(e) => {
-        if (e.target !== canvasRef.current) return;
-        return setSelectedTool(undefined);
-      }}
+      onClick={handleClick}
       onMouseDown={onMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
       style={{
-        width: '2000px',
-        height: '2000px',
-        transform: `translate(${offset.x}px, ${offset.y}px)`,
+        width: `${CANVAS_WIDTH}px`,
+        height: `${CANVAS_HEIGHT}px`,
+        transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+        transformOrigin: 'top left',
       }}
+      className="rounded-sm ring ring-gray-500"
     >
       {children}
     </div>

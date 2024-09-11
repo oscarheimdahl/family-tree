@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 
 import {
   canvasOffsetAtom,
+  canvasZoomAtom,
   mousePositionAtom,
   newConnectionSourceAtom,
   relativesAtom,
@@ -12,12 +13,11 @@ import {
 import { Line } from './Line';
 
 export const NewConnectionLine = () => {
-  const [newConnectionSource, setNewConnectionSource] = useAtom(
-    newConnectionSourceAtom,
-  );
+  const [newConnectionSource, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
   const [relatives] = useAtom(relativesAtom);
   const [offset] = useAtom(canvasOffsetAtom);
   const [mousePosition] = useAtom(mousePositionAtom);
+  const [zoom] = useAtom(canvasZoomAtom);
 
   useEffect(() => {
     const removeLine = (e: KeyboardEvent) => {
@@ -30,29 +30,16 @@ export const NewConnectionLine = () => {
   }, []);
 
   if (typeof newConnectionSource === 'string') {
-    const sourceRelative = relatives.find(
-      (node) => node.id === newConnectionSource,
-    );
+    const sourceRelative = relatives.find((node) => node.id === newConnectionSource);
 
     if (!sourceRelative) return null;
 
-    return (
-      <Line
-        x1={sourceRelative.x}
-        y1={sourceRelative.y}
-        x2={mousePosition.x - offset.x}
-        y2={mousePosition.y - offset.y}
-      />
-    );
+    return <Line x1={sourceRelative.x} y1={sourceRelative.y} x2={mousePosition.x} y2={mousePosition.y} />;
   }
 
-  const sourceParent1 = relatives.find(
-    (node) => node.id === newConnectionSource?.parent1,
-  );
+  const sourceParent1 = relatives.find((node) => node.id === newConnectionSource?.parent1);
 
-  const sourceParent2 = relatives.find(
-    (node) => node.id === newConnectionSource?.parent2,
-  );
+  const sourceParent2 = relatives.find((node) => node.id === newConnectionSource?.parent2);
 
   if (!sourceParent1 || !sourceParent2) return null;
 

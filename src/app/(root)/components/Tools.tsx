@@ -7,12 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Toggle } from '@/components/ui/toggle';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { canvasOffsetAtom, relativesAtom, selectedToolAtom } from '@/store/store';
+import { canvasOffsetAtom, canvasZoomAtom, relativesAtom, selectedToolAtom } from '@/store/store';
+
+import { snapToGrid } from './Canvas';
 
 export const Tools = () => {
   const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
   const [canvasOffset] = useAtom(canvasOffsetAtom);
   const [, setRelatives] = useAtom(relativesAtom);
+  const [canvasZoom] = useAtom(canvasZoomAtom);
   const [newRelativesCreated, setNewRelativesCreated] = useState(0);
 
   useEffect(() => {
@@ -30,8 +33,8 @@ export const Tools = () => {
       ...prev,
       {
         id: crypto.randomUUID(),
-        x: -canvasOffset.x + window.innerWidth / 2 + newRelativesCreated * 10,
-        y: -canvasOffset.y + window.innerHeight / 2 + newRelativesCreated * 10,
+        x: snapToGrid((-canvasOffset.x + window.innerWidth / 2) / canvasZoom + newRelativesCreated * 50),
+        y: snapToGrid((-canvasOffset.y + window.innerHeight / 2) / canvasZoom + newRelativesCreated * 50),
         name: 'New Relative',
         description: '',
       },

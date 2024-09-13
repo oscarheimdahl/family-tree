@@ -7,7 +7,8 @@ import { ConnectionSource } from '@/types/types';
 const canvasCenterWidth = -CANVAS_WIDTH / 2;
 const canvasCenterHeight = -CANVAS_HEIGHT / 2;
 
-export const mousePositionAtom = atom({ x: 0, y: 0 });
+export const pageMousePositionAtom = atom({ x: 0, y: 0 });
+export const canvasTransformOriginAtom = atom({ x: 0, y: 0 });
 export const canvasOffsetAtom = atom({ x: canvasCenterWidth, y: canvasCenterHeight });
 export const canvasZoomAtom = atom(1);
 export const selectedToolAtom = atom<'add-connection' | 'edit' | undefined>();
@@ -21,3 +22,4 @@ export const relativesAtom = atom(
   })),
 );
 export const draggedRelativeAtom = atom<string | undefined>(undefined);
+export const draggingCanvasAtom = atom(false);

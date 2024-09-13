@@ -5,19 +5,18 @@ import { useAtom } from 'jotai';
 import {
   canvasOffsetAtom,
   canvasZoomAtom,
-  mousePositionAtom,
   newConnectionSourceAtom,
+  pageMousePositionAtom,
   relativesAtom,
 } from '@/store/store';
 
+import { useCanvasMousePosition } from './Canvas';
 import { Line } from './Line';
 
 export const NewConnectionLine = () => {
   const [newConnectionSource, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
   const [relatives] = useAtom(relativesAtom);
-  const [offset] = useAtom(canvasOffsetAtom);
-  const [mousePosition] = useAtom(mousePositionAtom);
-  const [zoom] = useAtom(canvasZoomAtom);
+  const mousePosition = useCanvasMousePosition();
 
   useEffect(() => {
     const removeLine = (e: KeyboardEvent) => {
@@ -38,7 +37,6 @@ export const NewConnectionLine = () => {
   }
 
   const sourceParent1 = relatives.find((node) => node.id === newConnectionSource?.parent1);
-
   const sourceParent2 = relatives.find((node) => node.id === newConnectionSource?.parent2);
 
   if (!sourceParent1 || !sourceParent2) return null;

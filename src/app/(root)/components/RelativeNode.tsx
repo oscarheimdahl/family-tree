@@ -1,11 +1,13 @@
 import { Separator } from '@radix-ui/react-separator';
 import { useAtom } from 'jotai';
 import { Cable, Trash, X } from 'lucide-react';
+import Image from 'next/image';
 
+import profileImage from '@/assets/profile.png';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { cn, connectionIncludesId } from '@/lib/utils';
 import { useFinalizeConnection } from '@/store/hooks';
 import {
   connectionsAtom,
@@ -14,9 +16,9 @@ import {
   relativesAtom,
   selectedToolAtom,
 } from '@/store/store';
-import { ConnectionSource, ConnectionType, type RelativeNodeType } from '@/types/types';
+import { type RelativeNodeType } from '@/types/types';
 
-export const CARD_WIDTH = 160;
+export const CARD_WIDTH = 250;
 
 export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType }) => {
   const { id, x, y, name, description } = relativeNode;
@@ -31,7 +33,7 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
     <div
       onMouseDown={() => setDraggedRelative(id)}
       style={{ transform: `translate(${x}px, ${y}px)`, width: CARD_WIDTH }}
-      className={`absolute`}
+      className={`absolute z-20`}
     >
       <div className="animate-appear">
         <Card
@@ -41,17 +43,23 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
             finalizeConnection(id);
           }}
           className={cn(
-            'pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 p-2 pt-10',
+            'pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 bg-black p-2 pt-12',
             selectedTool === 'edit' && 'cursor-auto',
             newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-white hover:ring',
           )}
         >
-          <div className="absolute -top-6 left-1/2 size-16 -translate-x-1/2 rounded-full bg-slate-800 ring ring-white"></div>
+          <Image
+            alt="asd"
+            width={64}
+            height={64}
+            src={profileImage}
+            className="absolute -top-6 left-1/2 size-16 -translate-x-1/2 rounded-full bg-slate-800 ring ring-white"
+          ></Image>
           {selectedTool === 'edit' ? (
             <Input
               onMouseDown={(e) => e.stopPropagation()}
               value={name}
-              className="text-xl font-bold"
+              className="-ml-1 pl-1 text-xl font-bold"
               onChange={(e) => {
                 setRelatives((prev) => {
                   return prev.map((relative) => {
@@ -73,7 +81,7 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
           <Separator />
           <p>{description}</p>
           <p>
-            x:{x} y:{y}
+            x:{removeDecimals(x)} y:{removeDecimals(y)}
           </p>
           <NewConnectionSourceButton id={id} />
           <DeleteButton id={id} />
@@ -120,7 +128,7 @@ const DeleteButton = ({ id }: { id: string }) => {
           return prev.filter((relative) => relative.id !== id);
         });
         setConnections((prev) => {
-          return prev.filter((connection) => connectionIncludesId(connection, id));
+          return prev.filter((connection) => !connectionIncludesId(connection, id));
         });
       }}
       variant={'destructive'}
@@ -131,10 +139,6 @@ const DeleteButton = ({ id }: { id: string }) => {
   );
 };
 
-function connectionIncludesId(connection: ConnectionType, id: ConnectionSource) {
-  if (typeof connection.source === 'string' && connection.source === id) return false;
-  if (typeof connection.target === 'string' && connection.target === id) return false;
-  if (typeof connection.source === 'object' && connection.source.parent1 === id) return false;
-  if (typeof connection.source === 'object' && connection.source.parent2 === id) return false;
-  return true;
+function removeDecimals(number: number) {
+  return Math.round(number * 100) / 100;
 }

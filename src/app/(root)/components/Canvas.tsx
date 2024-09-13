@@ -8,8 +8,9 @@ import {
   canvasOffsetAtom,
   canvasZoomAtom,
   draggedRelativeAtom,
-  mousePositionAtom,
+  draggingCanvasAtom,
   newConnectionSourceAtom,
+  pageMousePositionAtom,
   relativesAtom,
   selectedToolAtom,
 } from '@/store/store';
@@ -17,17 +18,27 @@ import {
 export const CANVAS_WIDTH = 5000;
 export const CANVAS_HEIGHT = 5000;
 
+export const useCanvasMousePosition = () => {
+  const [pageMousePosition] = useAtom(pageMousePositionAtom);
+  const [canvasOffset] = useAtom(canvasOffsetAtom);
+  const [canvasZoom] = useAtom(canvasZoomAtom);
+
+  return {
+    x: (pageMousePosition.x - canvasOffset.x) / canvasZoom,
+    y: (pageMousePosition.y - canvasOffset.y) / canvasZoom,
+  };
+};
+
 export const CanvasContainer = ({ children }: { children: ReactNode }) => {
-  const [canDrag, setCanDrag] = useState(false);
+  const [draggingCanvas, setDraggingCanvas] = useAtom(draggingCanvasAtom);
   const [, setOffset] = useAtom(canvasOffsetAtom);
-  const [, setZoom] = useAtom(canvasZoomAtom);
 
   const handleCanvasMouseDown = (e: MouseEvent<HTMLDivElement>) => {
-    setCanDrag(true);
+    setDraggingCanvas(true);
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!canDrag) return;
+    if (!draggingCanvas) return;
     setOffset((prev) => {
       return {
         x: prev.x + e.movementX,
@@ -37,32 +48,11 @@ export const CanvasContainer = ({ children }: { children: ReactNode }) => {
   };
 
   const handleMouseUp = (e: MouseEvent<HTMLDivElement>) => {
-    setCanDrag(false);
-  };
-
-  const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
-    const delta = e.deltaY;
-
-    if (Math.abs(delta) < 10) return;
-    if (delta < 0)
-      setZoom((prev) => {
-        const newZoom = prev + 0.1;
-        return Math.min(newZoom, 2);
-      });
-    else
-      setZoom((prev) => {
-        const newZoom = prev - 0.1;
-        return Math.max(newZoom, 0.4);
-      });
+    setDraggingCanvas(false);
   };
 
   return (
-    <div
-      onWheel={handleScroll}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      className="h-full w-full overflow-hidden bg-gray-700"
-    >
+    <div onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} className="h-full w-full overflow-hidden">
       <Canvas onMouseDown={handleCanvasMouseDown}>{children}</Canvas>
     </div>
   );
@@ -75,15 +65,20 @@ const Canvas = ({
   children: ReactNode;
   onMouseDown: (e: MouseEvent<HTMLDivElement>) => void;
 }) => {
-  const [offset] = useAtom(canvasOffsetAtom);
-  const [zoom] = useAtom(canvasZoomAtom);
-
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  const [offset] = useAtom(canvasOffsetAtom);
+  const [canvasZoom] = useAtom(canvasZoomAtom);
   const [, setRelatives] = useAtom(relativesAtom);
   const [draggedRelative, setDraggedRelative] = useAtom(draggedRelativeAtom);
-  const [, setMousePosition] = useAtom(mousePositionAtom);
+  const [pageMousePosition, setMousePosition] = useAtom(pageMousePositionAtom);
   const [, setSelectedTool] = useAtom(selectedToolAtom);
   const [, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
+  const [canvasOffset, setCanvasOffset] = useAtom(canvasOffsetAtom);
+  const [, setCanvasZoom] = useAtom(canvasZoomAtom);
+  const [, setDraggingCanvas] = useAtom(draggingCanvasAtom);
+
+  const canvasMousePosition = useCanvasMousePosition();
 
   const handleMouseUp = () => {
     setDraggedRelative(undefined);
@@ -92,11 +87,41 @@ const Canvas = ({
       return prev.map((relative) => {
         return {
           ...relative,
-          x: snapToGrid(relative.x, 10),
-          y: snapToGrid(relative.y, 10),
+          x: snapToGrid(relative.x),
+          y: snapToGrid(relative.y),
         };
       });
     });
+  };
+
+  const canScroll = useRef(true);
+  const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
+    if (!canScroll.current) return;
+    const delta = e.deltaY;
+
+    if (canvasRef.current === null) return;
+
+    const scaleAmount = 0.1;
+    const _newCanvasZoom = delta < 0 ? canvasZoom + scaleAmount : canvasZoom - scaleAmount;
+    const newCanvasZoom = clamp(0.5, _newCanvasZoom, 2);
+
+    if (newCanvasZoom === canvasZoom) return;
+
+    setCanvasZoom(newCanvasZoom);
+
+    const newCanvasMousePositionX = (pageMousePosition.x - canvasOffset.x) / newCanvasZoom;
+    const newCanvasMousePositionY = (pageMousePosition.y - canvasOffset.y) / newCanvasZoom;
+    const canvasMousePositionDriftX = newCanvasMousePositionX - canvasMousePosition.x;
+    const canvasMousePositionDriftY = newCanvasMousePositionY - canvasMousePosition.y;
+
+    setCanvasOffset((prev) => ({
+      x: prev.x + canvasMousePositionDriftX * newCanvasZoom,
+      y: prev.y + canvasMousePositionDriftY * newCanvasZoom,
+    }));
+    canScroll.current = false;
+    setTimeout(() => {
+      canScroll.current = true;
+    }, 10);
   };
 
   const handleRelativeDrag = (e: MouseEvent<HTMLDivElement>) => {
@@ -109,8 +134,8 @@ const Canvas = ({
         if (relative.id === draggedRelative) {
           return {
             ...relative,
-            x: clamp(0, relative.x + e.movementX / zoom, CANVAS_WIDTH),
-            y: clamp(0, relative.y + e.movementY / zoom, CANVAS_HEIGHT),
+            x: clamp(0, relative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
+            y: clamp(0, relative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
           };
         }
         return relative;
@@ -120,29 +145,35 @@ const Canvas = ({
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     handleRelativeDrag(e);
-    setMousePosition({ x: e.clientX / zoom - offset.x / zoom, y: e.clientY / zoom - offset.y / zoom });
+    setMousePosition({ x: e.clientX, y: e.clientY });
   };
 
-  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+    onMouseDown(e);
     if (e.target !== canvasRef.current) return;
+
+    setDraggingCanvas(true);
     setSelectedTool(undefined);
     setNewConnectionSource(undefined);
   };
 
   return (
     <div
+      onWheel={handleScroll}
       ref={canvasRef}
-      onClick={handleClick}
-      onMouseDown={onMouseDown}
+      onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
+      className="rounded-sm bg-transparent ring"
       style={{
         width: `${CANVAS_WIDTH}px`,
         height: `${CANVAS_HEIGHT}px`,
-        transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
-        transformOrigin: 'top left',
+        transform: `translate(${offset.x}px, ${offset.y}px) scale(${canvasZoom})`,
+        transformOrigin: '0 0',
+        backgroundSize: '100px 100px',
+        backgroundImage: `linear-gradient(to right, #ffffff11 1px, transparent 1px),
+          linear-gradient(to bottom, #ffffff11 1px, transparent 1px)`,
       }}
-      className="rounded-sm ring ring-gray-500"
     >
       {children}
     </div>
@@ -153,6 +184,7 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-function snapToGrid(value: number, gridSize: number) {
+export function snapToGrid(value: number) {
+  const gridSize = 50;
   return Math.round(value / gridSize) * gridSize;
 }

@@ -6,6 +6,7 @@ import { connectionsAtom, relativesAtom } from '@/store/store';
 
 import { CanvasContainer } from './components/Canvas';
 import { Connection } from './components/Connection';
+import { Cursor } from './components/Cursor';
 // import { Cursor } from './components/Cursor';
 import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
@@ -16,7 +17,7 @@ export default function Home() {
   const [relatives] = useAtom(relativesAtom);
 
   return (
-    <>
+    <div className="h-full w-full bg-gradient-to-br from-slate-900 to-gray-900">
       <CanvasContainer>
         <NewConnectionLine />
 
@@ -28,9 +29,9 @@ export default function Home() {
             return <RelativeNode key={i} relativeNode={relativeNode} />;
           })}
         </div>
-        {/* <Cursor /> */}
       </CanvasContainer>
+      <Cursor />
       <Tools />
-    </>
+    </div>
   );
 }

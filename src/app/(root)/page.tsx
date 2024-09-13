@@ -1,13 +1,14 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useAtom } from 'jotai';
 
-import { connectionsAtom, relativesAtom } from '@/store/store';
+import { canvasOffsetAtom, canvasZoomAtom, connectionsAtom, relativesAtom } from '@/store/store';
 
 import { CanvasContainer } from './components/Canvas';
 import { Connection } from './components/Connection';
 import { Cursor } from './components/Cursor';
-// import { Cursor } from './components/Cursor';
 import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
 import { Tools } from './components/Tools';
@@ -15,6 +16,24 @@ import { Tools } from './components/Tools';
 export default function Home() {
   const [connections] = useAtom(connectionsAtom);
   const [relatives] = useAtom(relativesAtom);
+  const [canvasOffset] = useAtom(canvasOffsetAtom);
+  const [canvasZoom] = useAtom(canvasZoomAtom);
+
+  useEffect(() => {
+    localStorage.setItem('relatives', JSON.stringify(relatives));
+  }, [relatives]);
+
+  useEffect(() => {
+    localStorage.setItem('connections', JSON.stringify(connections));
+  }, [connections]);
+
+  useEffect(() => {
+    localStorage.setItem('offset', JSON.stringify(canvasOffset));
+  }, [canvasOffset]);
+
+  useEffect(() => {
+    localStorage.setItem('zoom', JSON.stringify(canvasZoom));
+  }, [canvasZoom]);
 
   return (
     <div className="h-full w-full bg-gradient-to-br from-slate-900 to-gray-900">

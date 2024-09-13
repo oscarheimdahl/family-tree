@@ -1,9 +1,5 @@
-import { useState } from 'react';
-
 import { useAtom, useAtomValue } from 'jotai';
-import { Trash } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { connectionsIdentical, connectionSourceOnConnection } from '@/lib/utils';
 import { useFinalizeConnection } from '@/store/hooks';
 import { connectionsAtom, newConnectionSourceAtom, relativesAtom, selectedToolAtom } from '@/store/store';
@@ -13,7 +9,7 @@ import { Line } from './Line';
 
 export const Connection = ({ fromId, toId }: { fromId: ConnectionSource; toId: string }) => {
   const [newConnectionSource, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
-  const [connections, setConnections] = useAtom(connectionsAtom);
+  const [, setConnections] = useAtom(connectionsAtom);
   const [relativeNodes] = useAtom(relativesAtom);
   const selectedTool = useAtomValue(selectedToolAtom);
   const finalizeConnection = useFinalizeConnection();

@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useRef, useState, WheelEvent, type MouseEvent } from 'react';
+import { ReactNode, useRef, WheelEvent, type MouseEvent } from 'react';
 
 import { useAtom } from 'jotai';
 
@@ -15,8 +15,7 @@ import {
   selectedToolAtom,
 } from '@/store/store';
 
-export const CANVAS_WIDTH = 5000;
-export const CANVAS_HEIGHT = 5000;
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../data';
 
 export const useCanvasMousePosition = () => {
   const [pageMousePosition] = useAtom(pageMousePositionAtom);
@@ -31,7 +30,7 @@ export const useCanvasMousePosition = () => {
 
 export const CanvasContainer = ({ children }: { children: ReactNode }) => {
   const [draggingCanvas, setDraggingCanvas] = useAtom(draggingCanvasAtom);
-  const [, setOffset] = useAtom(canvasOffsetAtom);
+  const [, setCanvasOffset] = useAtom(canvasOffsetAtom);
 
   const handleCanvasMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     setDraggingCanvas(true);
@@ -39,7 +38,7 @@ export const CanvasContainer = ({ children }: { children: ReactNode }) => {
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!draggingCanvas) return;
-    setOffset((prev) => {
+    setCanvasOffset((prev) => {
       return {
         x: prev.x + e.movementX,
         y: prev.y + e.movementY,
@@ -103,7 +102,7 @@ const Canvas = ({
 
     const scaleAmount = 0.1;
     const _newCanvasZoom = delta < 0 ? canvasZoom + scaleAmount : canvasZoom - scaleAmount;
-    const newCanvasZoom = clamp(0.5, _newCanvasZoom, 2);
+    const newCanvasZoom = clamp(0.25, _newCanvasZoom, 2);
 
     if (newCanvasZoom === canvasZoom) return;
 
@@ -121,7 +120,7 @@ const Canvas = ({
     canScroll.current = false;
     setTimeout(() => {
       canScroll.current = true;
-    }, 10);
+    }, 20);
   };
 
   const handleRelativeDrag = (e: MouseEvent<HTMLDivElement>) => {

@@ -2,13 +2,7 @@ import { useEffect } from 'react';
 
 import { useAtom } from 'jotai';
 
-import {
-  canvasOffsetAtom,
-  canvasZoomAtom,
-  newConnectionSourceAtom,
-  pageMousePositionAtom,
-  relativesAtom,
-} from '@/store/store';
+import { newConnectionSourceAtom, relativesAtom } from '@/store/store';
 
 import { useCanvasMousePosition } from './Canvas';
 import { Line } from './Line';

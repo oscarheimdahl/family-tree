@@ -22,12 +22,14 @@ export const useFinalizeConnection = () => {
       (typeof newConnectionSource === 'string' && typeof target === 'string')
     ) {
       newConnection = {
+        id: crypto.randomUUID(),
         source: newConnectionSource,
         target: target,
       };
       // Connecting a child to a couple
     } else if (typeof newConnectionSource === 'string' && typeof target === 'object') {
       newConnection = {
+        id: crypto.randomUUID(),
         source: target,
         target: newConnectionSource,
       };
@@ -45,28 +47,48 @@ export const useFinalizeConnection = () => {
         return prev;
 
       setNewConnectionSource(undefined);
+      createConnectionBackend(newConnection);
       return [...prev, newConnection];
     });
   };
 };
 
+function createConnectionBackend(connection: ConnectionType) {
+  fetch(`${BACKEND}/api/connections`, {
+    method: 'POST',
+    body: JSON.stringify(connection),
+  });
+}
+
+function useDebounce<T extends (...args: any[]) => void>(callback: T, delay: number) {
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const debouncedFunction = useCallback(
+    (...args: Parameters<T>) => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    },
+    [callback, delay],
+  );
+
+  return debouncedFunction;
+}
+
 export const useUpdateRelative = () => {
   const [, setRelatives] = useAtom(relativesAtom);
 
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const updateRelativeBackend = useCallback((relative: RelativeNodeType) => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(async () => {
-      console.log(relative);
-      fetch(`${BACKEND}/api/relatives`, {
-        method: 'PUT',
-        body: JSON.stringify(relative),
-      });
-    }, 300);
-  }, []);
+  const updateRelativeBackend = useDebounce((relative: RelativeNodeType) => {
+    console.log(relative);
+    fetch(`${BACKEND}/api/relatives`, {
+      method: 'PUT',
+      body: JSON.stringify(relative),
+    });
+  }, 300);
 
   const setRelativesWithBackendFetch = (
     id: string,

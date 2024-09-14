@@ -35,8 +35,6 @@ export async function getRelative(id: string) {
 export async function getRelatives() {
   const result = await _db.get(['relatives']);
 
-  console.log(result);
-
   return result.value ?? [];
 }
 
@@ -59,7 +57,6 @@ export async function updateRelative(relative: Partial<Relative>) {
   const relatives = (result.value ?? []) as Relative[];
   const newRelatives = relatives.map((oldRelative) => {
     if (oldRelative.id === relative.id) {
-      console.log({ relative });
       return relative;
     }
     return oldRelative;

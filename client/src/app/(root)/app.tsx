@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 
 import { connectionsAtom, relativesAtom } from '@/store/store';
-import { RelativeNodeType } from '@/types/types';
+import { ConnectionType, RelativeNodeType } from '@/types/types';
 
 import { CanvasContainer } from './components/Canvas';
 import { Connection } from './components/Connection';
@@ -13,8 +13,15 @@ import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
 import { Tools } from './components/Tools';
 
-export default function App({ serverRelatives }: { serverRelatives: RelativeNodeType[] }) {
+export default function App({
+  serverRelatives,
+  serverConnections,
+}: {
+  serverRelatives: RelativeNodeType[];
+  serverConnections: ConnectionType[];
+}) {
   useHydrateAtoms([[relativesAtom, serverRelatives]]);
+  useHydrateAtoms([[connectionsAtom, serverConnections]]);
   const [connections] = useAtom(connectionsAtom);
   const [relatives] = useAtom(relativesAtom);
 

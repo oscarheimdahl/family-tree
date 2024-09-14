@@ -2,8 +2,9 @@ import z from 'npm:zod';
 import { _db } from './index.ts';
 
 export const connectionSchema = z.object({
-  from: z.object({ parent1: z.string(), parent2: z.string() }).or(z.string()),
-  to: z.string(),
+  source: z.object({ parent1: z.string(), parent2: z.string() }).or(z.string()),
+  target: z.string(),
+  id: z.string(),
 });
 
 export type Connection = z.infer<typeof connectionSchema>;
@@ -23,14 +24,16 @@ export async function getConnections() {
   return result.value ?? [];
 }
 
-// export async function deleteRelative(id: string) {
-//   const result = await _db.get([connectionsKey]);
+export async function deleteConnection(id: string) {
+  const result = await _db.get([connectionsKey]);
 
-//   const relatives = (result.value ?? []) as Relative[];
-//   const newRelatives = relatives.filter((relative) => relative.id !== id);
+  const connections = (result.value ?? []) as Connection[];
+  const newConnections = connections.filter(
+    (connection) => connection.id !== id
+  );
 
-//   await _db.set([connectionsKey], newRelatives);
-// }
+  await _db.set([connectionsKey], newConnections);
+}
 
 export async function deleteAllConnections() {
   await _db.delete([connectionsKey]);

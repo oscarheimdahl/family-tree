@@ -10,6 +10,7 @@ export type RelativeNodeType = {
 export type ConnectionSource = string | { parent1: string; parent2: string };
 
 export type ConnectionType = {
+  id: string;
   source: ConnectionSource;
   target: string;
 };

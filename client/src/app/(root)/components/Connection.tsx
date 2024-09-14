@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai';
 
 import { connectionsIdentical, connectionSourceOnConnection } from '@/lib/utils';
+import { BACKEND } from '@/lib/vars';
 import { useFinalizeConnection } from '@/store/hooks';
 import { connectionsAtom, newConnectionSourceAtom, relativesAtom, selectedToolAtom } from '@/store/store';
 import { ConnectionSource } from '@/types/types';
@@ -23,10 +24,18 @@ export const Connection = ({ fromId, toId }: { fromId: ConnectionSource; toId: s
     onClick = () => {
       setConnections((prev) => {
         return prev.filter((connection) => {
-          return (
-            !connectionsIdentical(connection, { source: fromId, target: toId }) &&
-            !connectionSourceOnConnection(connection, { parent1: fromId, parent2: toId })
-          );
+          const keep =
+            !connectionsIdentical(connection, { source: fromId, target: toId, id: 'null' }) &&
+            !connectionSourceOnConnection(connection, { parent1: fromId, parent2: toId });
+
+          if (!keep) {
+            fetch(`${BACKEND}/api/connections`, {
+              method: 'DELETE',
+              body: connection.id,
+            });
+          }
+
+          return keep;
         });
       });
     };

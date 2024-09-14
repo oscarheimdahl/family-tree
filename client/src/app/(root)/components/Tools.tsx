@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Toggle } from '@/components/ui/toggle';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { BACKEND } from '@/lib/vars';
 import { canvasOffsetAtom, canvasZoomAtom, relativesAtom, selectedToolAtom } from '@/store/store';
 
-import { BACKEND } from '../page';
 import { snapToGrid } from './Canvas';
 
 export const Tools = () => {

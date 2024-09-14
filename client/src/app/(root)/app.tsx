@@ -20,8 +20,11 @@ export default function App({
   serverRelatives: RelativeNodeType[];
   serverConnections: ConnectionType[];
 }) {
-  useHydrateAtoms([[relativesAtom, serverRelatives]]);
-  useHydrateAtoms([[connectionsAtom, serverConnections]]);
+  console.log(serverConnections);
+  useHydrateAtoms([
+    [relativesAtom, serverRelatives],
+    [connectionsAtom, serverConnections],
+  ]);
   const [connections] = useAtom(connectionsAtom);
   const [relatives] = useAtom(relativesAtom);
 

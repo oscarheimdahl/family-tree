@@ -4,6 +4,8 @@ import localFont from 'next/font/local';
 import './styles/globals.css';
 import './styles/other.css';
 
+import { Provider } from 'jotai';
+
 import { Providers } from './Providers';
 
 const geistSans = localFont({
@@ -30,7 +32,9 @@ export default async function RootLayout({
   return (
     <html className="dark" lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Provider>
+          <Providers>{children}</Providers>
+        </Provider>
       </body>
     </html>
   );

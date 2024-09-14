@@ -8,7 +8,9 @@ import App from './app';
 export default async function Page() {
   let relatives: RelativeNodeType[] = [];
   try {
-    const relativesResponse = await fetch(`${BACKEND}/api/relatives`);
+    const relativesResponse = await fetch(`${BACKEND}/api/relatives`, {
+      cache: 'no-store',
+    });
     relatives = (await relativesResponse.json()) as RelativeNodeType[];
   } catch (e) {
     console.log(e);

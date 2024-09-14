@@ -1,23 +1,21 @@
 import { z } from 'npm:zod';
 import { _db } from './index.ts';
 
-const relativeSchema = z.object({
+export const relativeSchema = z.object({
   id: z.string(),
   name: z.string(),
 });
 
 export type Relative = z.infer<typeof relativeSchema>;
 
-export async function addRelative(relative: unknown) {
-  const parsedRelative = relativeSchema.parse(relative);
-
+export async function addRelative(relative: Relative) {
   const result = await _db.get(['relatives']);
 
   const relatives = (result.value ?? []) as Relative[];
-  if (relatives.find((relative) => relative.id === parsedRelative.id)) {
+  if (relatives.find((relative) => relative.id === relative.id)) {
     throw new Error('Relative already exists');
   }
-  relatives.push(parsedRelative);
+  relatives.push(relative);
 
   await _db.set(['relatives'], relatives);
 }

@@ -10,7 +10,6 @@ export type Connection = z.infer<typeof connectionSchema>;
 const connectionsKey = 'connections';
 
 export async function addConnection(connection: Connection) {
-  console.log(`🔴 adding connection`);
   const result = await _db.get(['connections']);
   const connections = (result.value ?? []) as Connection[];
   connections.push(connection);

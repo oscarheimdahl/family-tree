@@ -12,38 +12,38 @@ const canvasCenterHeight = -CANVAS_HEIGHT / 2;
 //   y: canvasCenterHeight * -1 + relative.y,
 // }));
 
-let ls = {
-  getItem: (key: string) => null,
-  setItem: (key: string, value: string) => null,
-};
-if (typeof window !== 'undefined') {
-  //@ts-ignore
-  ls = localStorage;
-}
+// let ls = {
+//   getItem: (key: string) => null,
+//   setItem: (key: string, value: string) => null,
+// };
+// if (typeof window !== 'undefined') {
+//   //@ts-ignore
+//   ls = localStorage;
+// }
 
-function tryParseStorage(key: string, defaultValue: any) {
-  try {
-    //@ts-ignore
-    return JSON.parse(ls.getItem(key)) ?? defaultValue;
-  } catch (e) {
-    return defaultValue;
-  }
-}
-const storedRelatives = tryParseStorage('relatives', []) as RelativeNodeType[];
-const storedConnections = tryParseStorage('connections', []) as ConnectionType[];
-const storedZoom = parseFloat(ls.getItem('zoom') ?? '1');
-const storedOffset = (JSON.parse(ls.getItem('offset')!) ?? {
-  x: canvasCenterWidth,
-  y: canvasCenterHeight,
-}) as { x: number; y: number };
+// function tryParseStorage(key: string, defaultValue: any) {
+//   try {
+//     //@ts-ignore
+//     return JSON.parse(ls.getItem(key)) ?? defaultValue;
+//   } catch (e) {
+//     return defaultValue;
+//   }
+// }
+// const storedRelatives = tryParseStorage('relatives', []) as RelativeNodeType[];
+// const storedConnections = tryParseStorage('connections', []) as ConnectionType[];
+// const storedZoom = parseFloat(ls.getItem('zoom') ?? '1');
+// const storedOffset = (JSON.parse(ls.getItem('offset')!) ?? {
+//   x: canvasCenterWidth,
+//   y: canvasCenterHeight,
+// }) as { x: number; y: number };
 
 export const pageMousePositionAtom = atom({ x: 0, y: 0 });
 export const canvasTransformOriginAtom = atom({ x: 0, y: 0 });
-export const canvasOffsetAtom = atom(storedOffset);
-export const canvasZoomAtom = atom(storedZoom);
+export const canvasOffsetAtom = atom({ x: canvasCenterWidth, y: canvasCenterHeight });
+export const canvasZoomAtom = atom(1);
 export const selectedToolAtom = atom<'add-connection' | 'edit' | undefined>();
 export const newConnectionSourceAtom = atom<ConnectionSource | undefined>(undefined);
-export const connectionsAtom = atom(storedConnections);
-export const relativesAtom = atom(storedRelatives);
+export const connectionsAtom = atom<ConnectionType[]>([]);
+export const relativesAtom = atom<RelativeNodeType[]>([]);
 export const draggedRelativeAtom = atom<string | undefined>(undefined);
 export const draggingCanvasAtom = atom(false);

@@ -12,10 +12,27 @@ const canvasCenterHeight = -CANVAS_HEIGHT / 2;
 //   y: canvasCenterHeight * -1 + relative.y,
 // }));
 
-const storedRelatives = JSON.parse(localStorage.getItem('relatives')! ?? []) as RelativeNodeType[];
-const storedConnections = JSON.parse(localStorage.getItem('connections')! ?? []) as ConnectionType[];
-const storedZoom = parseFloat(localStorage.getItem('zoom') ?? '1');
-const storedOffset = (JSON.parse(localStorage.getItem('offset')!) ?? {
+let ls = {
+  getItem: (key: string) => null,
+  setItem: (key: string, value: string) => null,
+};
+if (typeof window !== 'undefined') {
+  //@ts-ignore
+  ls = localStorage;
+}
+
+function tryParseStorage(key: string, defaultValue: any) {
+  try {
+    //@ts-ignore
+    return JSON.parse(ls.getItem(key)) ?? defaultValue;
+  } catch (e) {
+    return defaultValue;
+  }
+}
+const storedRelatives = tryParseStorage('relatives', []) as RelativeNodeType[];
+const storedConnections = tryParseStorage('connections', []) as ConnectionType[];
+const storedZoom = parseFloat(ls.getItem('zoom') ?? '1');
+const storedOffset = (JSON.parse(ls.getItem('offset')!) ?? {
   x: canvasCenterWidth,
   y: canvasCenterHeight,
 }) as { x: number; y: number };

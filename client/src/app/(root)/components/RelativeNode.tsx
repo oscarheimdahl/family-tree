@@ -140,5 +140,5 @@ const DeleteButton = ({ id }: { id: string }) => {
 };
 
 function removeDecimals(number: number) {
-  return Math.round(number * 100) / 100;
+  return Math.round(number);
 }

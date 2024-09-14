@@ -5,7 +5,7 @@ export const CANVAS_HEIGHT = 6000;
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 2;
 
-export const relativesData: RelativeNodeType[] = JSON.parse(localStorage.getItem('relatives')!) ?? [
+export const relativesData: RelativeNodeType[] = [
   {
     id: crypto.randomUUID(),
     x: 200,
@@ -43,7 +43,7 @@ export const relativesData: RelativeNodeType[] = JSON.parse(localStorage.getItem
   },
 ];
 
-export const connectionsData: ConnectionType[] = JSON.parse(localStorage.getItem('connections')!) ?? [
+export const connectionsData: ConnectionType[] = [
   {
     source: relativesData[0].id,
     target: relativesData[1].id,
@@ -61,4 +61,3 @@ export const connectionsData: ConnectionType[] = JSON.parse(localStorage.getItem
     target: relativesData[4].id,
   },
 ];
-console.log(connectionsData);

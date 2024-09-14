@@ -163,7 +163,7 @@ const Canvas = ({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
-      className="rounded-sm bg-transparent ring"
+      className="rounded-sm bg-transparent ring ring-[#ffffff11]"
       style={{
         width: `${CANVAS_WIDTH}px`,
         height: `${CANVAS_HEIGHT}px`,

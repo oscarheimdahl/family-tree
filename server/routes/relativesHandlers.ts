@@ -3,6 +3,7 @@ import {
   deleteAllRelatives,
   getRelatives,
   relativeSchema,
+  updateRelative,
 } from '../db/index.ts';
 import { c } from '../index.ts';
 
@@ -12,6 +13,7 @@ export async function relativesHandlers(ctx: Context) {
   if (ctx.req.method === 'GET') return await getRelativesHandler(ctx);
   if (ctx.req.method === 'POST') return await postRelativeHandler(ctx);
   if (ctx.req.method === 'DELETE') return await deleteAllRelativesHandler(ctx);
+  if (ctx.req.method === 'PUT') return await updateRelativeHandler(ctx);
 
   return new Response('Not found', {
     status: 404,
@@ -20,7 +22,6 @@ export async function relativesHandlers(ctx: Context) {
 }
 
 async function getRelativesHandler(ctx: Context) {
-  console.log('gettingRelatives');
   const [dbErr, relatives] = await c(getRelatives());
   if (dbErr) {
     console.log(dbErr);
@@ -29,9 +30,9 @@ async function getRelativesHandler(ctx: Context) {
       headers: ctx.responseHeaders,
     });
   }
-  console.log(`🔴`);
-  console.log(relatives);
-  return new Response(JSON.stringify(relatives));
+  return new Response(JSON.stringify(relatives), {
+    headers: ctx.responseHeaders,
+  });
 }
 
 async function postRelativeHandler(ctx: Context) {
@@ -53,7 +54,7 @@ async function postRelativeHandler(ctx: Context) {
     });
   }
 
-  const [dbErr] = await c(addRelative(relativeData));
+  const [dbErr] = await c(addRelative(parseRes.data));
   if (dbErr) {
     console.log(dbErr);
     return new Response('Error adding relative', {
@@ -73,5 +74,35 @@ async function deleteAllRelativesHandler(ctx: Context) {
       headers: ctx.responseHeaders,
     });
   }
-  return new Response(null, { status: 204 });
+  return new Response(null, { status: 204, headers: ctx.responseHeaders });
+}
+
+async function updateRelativeHandler(ctx: Context) {
+  const [err, relativeData] = await c(ctx.req.json());
+  if (err) {
+    console.log(err);
+    return new Response('Invalid JSON', {
+      status: 400,
+      headers: ctx.responseHeaders,
+    });
+  }
+
+  const parseRes = relativeSchema.safeParse(relativeData);
+  if (!parseRes.success) {
+    console.log(parseRes.error);
+    return new Response(`Bad shape of relative, ${parseRes.error.message}`, {
+      status: 400,
+      headers: ctx.responseHeaders,
+    });
+  }
+
+  const [dbErr] = await c(updateRelative(parseRes.data));
+  if (dbErr) {
+    console.log(dbErr);
+    return new Response('Error updating relative', {
+      status: 500,
+      headers: ctx.responseHeaders,
+    });
+  }
+  return new Response(null, { status: 204, headers: ctx.responseHeaders });
 }

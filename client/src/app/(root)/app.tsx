@@ -3,7 +3,7 @@
 import { useAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 
-import { canvasOffsetAtom, canvasZoomAtom, connectionsAtom, relativesAtom } from '@/store/store';
+import { connectionsAtom, relativesAtom } from '@/store/store';
 import { RelativeNodeType } from '@/types/types';
 
 import { CanvasContainer } from './components/Canvas';
@@ -14,28 +14,9 @@ import { RelativeNode } from './components/RelativeNode';
 import { Tools } from './components/Tools';
 
 export default function App({ serverRelatives }: { serverRelatives: RelativeNodeType[] }) {
-  console.log(serverRelatives);
   useHydrateAtoms([[relativesAtom, serverRelatives]]);
   const [connections] = useAtom(connectionsAtom);
   const [relatives] = useAtom(relativesAtom);
-  const [canvasOffset] = useAtom(canvasOffsetAtom);
-  const [canvasZoom] = useAtom(canvasZoomAtom);
-
-  // useEffect(() => {
-  //   localStorage.setItem('relatives', JSON.stringify(relatives));
-  // }, [relatives]);
-
-  // useEffect(() => {
-  //   localStorage.setItem('connections', JSON.stringify(connections));
-  // }, [connections]);
-
-  // useEffect(() => {
-  //   localStorage.setItem('offset', JSON.stringify(canvasOffset));
-  // }, [canvasOffset]);
-
-  // useEffect(() => {
-  //   localStorage.setItem('zoom', JSON.stringify(canvasZoom));
-  // }, [canvasZoom]);
 
   return (
     <div className="h-full w-full bg-gradient-to-br from-slate-900 to-gray-900">

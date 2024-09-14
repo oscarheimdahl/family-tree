@@ -43,7 +43,7 @@ export const Tools = () => {
     fetch(`${BACKEND}/api/relatives`, {
       method: 'POST',
       body: JSON.stringify(newRelative),
-    });
+    }).catch((e) => console.log(e));
   };
 
   return (

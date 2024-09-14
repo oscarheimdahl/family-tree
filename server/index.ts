@@ -6,6 +6,16 @@ export type Context = {
   responseHeaders: Headers;
 };
 
+function setOrigin(origin: string | null) {
+  const allowedOrigins = [
+    'http://localhost:4333',
+    'https://pettersson.vercel.app',
+  ];
+  if (!origin) return '';
+  if (allowedOrigins.includes(origin)) return origin;
+  return '';
+}
+
 Deno.serve({ port: 4334 }, async (req): Promise<Response> => {
   const url = new URL(req.url);
 
@@ -14,10 +24,17 @@ Deno.serve({ port: 4334 }, async (req): Promise<Response> => {
   const ctx = {
     req,
     responseHeaders: new Headers({
-      'Access-Control-Allow-Origin': 'http://localhost:4333',
+      'Access-Control-Allow-Origin': setOrigin(req.headers.get('Origin')),
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, PUT, OPTIONS',
     }),
   };
+  //allow preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: ctx.responseHeaders,
+    });
+  }
 
   if (path.at(1) === 'api') {
     if (path.at(2) === 'relatives') return await relativesHandlers(ctx);

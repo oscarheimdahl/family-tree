@@ -52,3 +52,18 @@ export async function deleteRelative(id: string) {
 export async function deleteAllRelatives() {
   await _db.delete(['relatives']);
 }
+
+export async function updateRelative(relative: Partial<Relative>) {
+  const result = await _db.get(['relatives']);
+
+  const relatives = (result.value ?? []) as Relative[];
+  const newRelatives = relatives.map((oldRelative) => {
+    if (oldRelative.id === relative.id) {
+      console.log({ relative });
+      return relative;
+    }
+    return oldRelative;
+  });
+
+  await _db.set(['relatives'], newRelatives);
+}

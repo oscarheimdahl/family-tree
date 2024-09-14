@@ -1,6 +1,9 @@
+import { useCallback, useRef } from 'react';
+
 import { useAtom } from 'jotai';
 
 import { connectionIncludesId } from '@/lib/utils';
+import { BACKEND } from '@/lib/vars';
 import { ConnectionSource, ConnectionType, RelativeNodeType } from '@/types/types';
 
 import { connectionsAtom, newConnectionSourceAtom, relativesAtom } from './store';
@@ -47,6 +50,41 @@ export const useFinalizeConnection = () => {
   };
 };
 
-export const useUpdateRelative = (relative: RelativeNodeType) => {
+export const useUpdateRelative = () => {
   const [, setRelatives] = useAtom(relativesAtom);
+
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const updateRelativeBackend = useCallback((relative: RelativeNodeType) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(async () => {
+      console.log(relative);
+      fetch(`${BACKEND}/api/relatives`, {
+        method: 'PUT',
+        body: JSON.stringify(relative),
+      });
+    }, 300);
+  }, []);
+
+  const setRelativesWithBackendFetch = (
+    id: string,
+    updateRelativeCallback: (prevRelative: RelativeNodeType) => Partial<RelativeNodeType>,
+  ) => {
+    setRelatives((prev) => {
+      return prev.map((relative) => {
+        if (relative.id === id) {
+          const updatedRelative: RelativeNodeType = {
+            ...relative,
+            ...updateRelativeCallback(relative),
+          };
+          updateRelativeBackend(updatedRelative);
+          return updatedRelative;
+        }
+        return relative;
+      });
+    });
+  };
+  return setRelativesWithBackendFetch;
 };

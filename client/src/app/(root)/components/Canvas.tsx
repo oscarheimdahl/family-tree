@@ -4,6 +4,7 @@ import { ReactNode, useRef, WheelEvent, type MouseEvent } from 'react';
 
 import { useAtom } from 'jotai';
 
+import { useUpdateRelative } from '@/store/hooks';
 import {
   canvasOffsetAtom,
   canvasZoomAtom,
@@ -68,7 +69,7 @@ const Canvas = ({
 
   const [offset] = useAtom(canvasOffsetAtom);
   const [canvasZoom] = useAtom(canvasZoomAtom);
-  const [, setRelatives] = useAtom(relativesAtom);
+  const updateRelative = useUpdateRelative();
   const [draggedRelative, setDraggedRelative] = useAtom(draggedRelativeAtom);
   const [pageMousePosition, setMousePosition] = useAtom(pageMousePositionAtom);
   const [, setSelectedTool] = useAtom(selectedToolAtom);
@@ -80,17 +81,13 @@ const Canvas = ({
   const canvasMousePosition = useCanvasMousePosition();
 
   const handleMouseUp = () => {
-    setDraggedRelative(undefined);
+    if (draggedRelative === undefined) return;
 
-    setRelatives((prev) => {
-      return prev.map((relative) => {
-        return {
-          ...relative,
-          x: snapToGrid(relative.x),
-          y: snapToGrid(relative.y),
-        };
-      });
-    });
+    updateRelative(draggedRelative, (prevRelative) => ({
+      x: snapToGrid(prevRelative.x),
+      y: snapToGrid(prevRelative.y),
+    }));
+    setDraggedRelative(undefined);
   };
 
   const canScroll = useRef(true);
@@ -128,18 +125,12 @@ const Canvas = ({
     if (e.movementX === 0 && e.movementY === 0) return;
     e.stopPropagation();
 
-    setRelatives((prev) => {
-      return prev.map((relative) => {
-        if (relative.id === draggedRelative) {
-          return {
-            ...relative,
-            x: clamp(0, relative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
-            y: clamp(0, relative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
-          };
-        }
-        return relative;
-      });
-    });
+    if (draggedRelative === undefined) return;
+
+    updateRelative(draggedRelative, (prevRelative) => ({
+      x: clamp(0, prevRelative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
+      y: clamp(0, prevRelative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
+    }));
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {

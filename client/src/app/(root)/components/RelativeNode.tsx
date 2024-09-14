@@ -1,3 +1,5 @@
+import { ChangeEvent } from 'react';
+
 import { Separator } from '@radix-ui/react-separator';
 import { useAtom } from 'jotai';
 import { Cable, Trash, X } from 'lucide-react';
@@ -8,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn, connectionIncludesId } from '@/lib/utils';
-import { useFinalizeConnection } from '@/store/hooks';
+import { useFinalizeConnection, useUpdateRelative } from '@/store/hooks';
 import {
   connectionsAtom,
   draggedRelativeAtom,
@@ -25,9 +27,15 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
   const [newConnectionSource] = useAtom(newConnectionSourceAtom);
   const [, setDraggedRelative] = useAtom(draggedRelativeAtom);
   const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
-  const [, setRelatives] = useAtom(relativesAtom);
+  const updateRelative = useUpdateRelative();
 
   const finalizeConnection = useFinalizeConnection();
+
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateRelative(id, () => ({
+      name: e.target.value ?? '',
+    }));
+  };
 
   return (
     <div
@@ -60,19 +68,7 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
               onMouseDown={(e) => e.stopPropagation()}
               value={name}
               className="-ml-1 pl-1 text-xl font-bold"
-              onChange={(e) => {
-                setRelatives((prev) => {
-                  return prev.map((relative) => {
-                    if (relative.id === id) {
-                      return {
-                        ...relative,
-                        name: e.target.value ?? '',
-                      };
-                    }
-                    return relative;
-                  });
-                });
-              }}
+              onChange={handleNameChange}
             />
           ) : (
             <h1 className="text-xl font-bold">{name}</h1>

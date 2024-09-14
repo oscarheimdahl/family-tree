@@ -1,8 +1,10 @@
 'use client';
 
 import { useAtom } from 'jotai';
+import { useHydrateAtoms } from 'jotai/utils';
 
 import { canvasOffsetAtom, canvasZoomAtom, connectionsAtom, relativesAtom } from '@/store/store';
+import { RelativeNodeType } from '@/types/types';
 
 import { CanvasContainer } from './components/Canvas';
 import { Connection } from './components/Connection';
@@ -11,7 +13,9 @@ import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
 import { Tools } from './components/Tools';
 
-export default function App() {
+export default function App({ serverRelatives }: { serverRelatives: RelativeNodeType[] }) {
+  console.log(serverRelatives);
+  useHydrateAtoms([[relativesAtom, serverRelatives]]);
   const [connections] = useAtom(connectionsAtom);
   const [relatives] = useAtom(relativesAtom);
   const [canvasOffset] = useAtom(canvasOffsetAtom);

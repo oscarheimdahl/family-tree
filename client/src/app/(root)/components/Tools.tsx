@@ -9,6 +9,7 @@ import { Toggle } from '@/components/ui/toggle';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { canvasOffsetAtom, canvasZoomAtom, relativesAtom, selectedToolAtom } from '@/store/store';
 
+import { BACKEND } from '../page';
 import { snapToGrid } from './Canvas';
 
 export const Tools = () => {
@@ -29,17 +30,20 @@ export const Tools = () => {
   }, []);
 
   const addNewRelative = () => {
-    setRelatives((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        x: snapToGrid((-canvasOffset.x + window.innerWidth / 2) / canvasZoom + newRelativesCreated * 50),
-        y: snapToGrid((-canvasOffset.y + window.innerHeight / 2) / canvasZoom + newRelativesCreated * 50),
-        name: 'New Relative',
-        description: '',
-      },
-    ]);
+    const newRelative = {
+      id: crypto.randomUUID(),
+      x: snapToGrid((-canvasOffset.x + window.innerWidth / 2) / canvasZoom + newRelativesCreated * 50),
+      y: snapToGrid((-canvasOffset.y + window.innerHeight / 2) / canvasZoom + newRelativesCreated * 50),
+      name: 'New Relative',
+      description: '',
+    };
+    setRelatives((prev) => [...prev, newRelative]);
     setNewRelativesCreated((prev) => prev + 1);
+
+    fetch(`${BACKEND}/api/relatives`, {
+      method: 'POST',
+      body: JSON.stringify(newRelative),
+    });
   };
 
   return (

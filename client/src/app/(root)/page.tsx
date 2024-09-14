@@ -1,12 +1,12 @@
-'use client';
+import { RelativeNodeType } from '@/types/types';
 
 import App from './app';
 
-const BACKEND = 'https://family-tree-backend.deno.dev';
+export const BACKEND = process.env.NEXT_PUBLIC_BACKEND;
 
 export default async function Page() {
   const relativesResponse = await fetch(`${BACKEND}/api/relatives`);
-  const relatives = await relativesResponse.json();
+  const relatives = (await relativesResponse.json()) as RelativeNodeType[];
 
-  return <App></App>;
+  return <App serverRelatives={relatives}></App>;
 }

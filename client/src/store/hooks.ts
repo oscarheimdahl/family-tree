@@ -1,9 +1,9 @@
 import { useAtom } from 'jotai';
 
 import { connectionIncludesId } from '@/lib/utils';
-import { ConnectionSource, ConnectionType } from '@/types/types';
+import { ConnectionSource, ConnectionType, RelativeNodeType } from '@/types/types';
 
-import { connectionsAtom, newConnectionSourceAtom } from './store';
+import { connectionsAtom, newConnectionSourceAtom, relativesAtom } from './store';
 
 export const useFinalizeConnection = () => {
   const [newConnectionSource, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
@@ -45,4 +45,8 @@ export const useFinalizeConnection = () => {
       return [...prev, newConnection];
     });
   };
+};
+
+export const useUpdateRelative = (relative: RelativeNodeType) => {
+  const [, setRelatives] = useAtom(relativesAtom);
 };

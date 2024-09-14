@@ -4,6 +4,9 @@ import { _db } from './index.ts';
 export const relativeSchema = z.object({
   id: z.string(),
   name: z.string(),
+  description: z.string(),
+  x: z.number(),
+  y: z.number(),
 });
 
 export type Relative = z.infer<typeof relativeSchema>;
@@ -12,12 +15,13 @@ export async function addRelative(relative: Relative) {
   const result = await _db.get(['relatives']);
 
   const relatives = (result.value ?? []) as Relative[];
-  if (relatives.find((relative) => relative.id === relative.id)) {
+  if (relatives.find((oldRelative) => oldRelative.id === relative.id)) {
     throw new Error('Relative already exists');
   }
   relatives.push(relative);
 
   await _db.set(['relatives'], relatives);
+  console.log('Added relative: ', relative.name);
 }
 
 export async function getRelative(id: string) {
@@ -30,6 +34,8 @@ export async function getRelative(id: string) {
 
 export async function getRelatives() {
   const result = await _db.get(['relatives']);
+
+  console.log(result);
 
   return result.value ?? [];
 }

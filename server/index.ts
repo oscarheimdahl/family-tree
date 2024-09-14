@@ -6,7 +6,7 @@ export type Context = {
   responseHeaders: Headers;
 };
 
-Deno.serve(async (req): Promise<Response> => {
+Deno.serve({ port: 4334 }, async (req): Promise<Response> => {
   const url = new URL(req.url);
 
   const path = url.pathname.split('/');
@@ -14,8 +14,8 @@ Deno.serve(async (req): Promise<Response> => {
   const ctx = {
     req,
     responseHeaders: new Headers({
-      'Access-Control-Allow-Origin': req.headers.get('origin') || '*',
-      'Access-Control-Allow-Methods': 'GET, POST, DELETE, PUT',
+      'Access-Control-Allow-Origin': 'http://localhost:4333',
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE, PUT, OPTIONS',
     }),
   };
 
@@ -24,7 +24,10 @@ Deno.serve(async (req): Promise<Response> => {
     if (path.at(2) === 'connections') return await connectionsHandlers(ctx);
   }
 
-  return new Response('Not found', { status: 404 });
+  return new Response('Not found', {
+    status: 404,
+    headers: ctx.responseHeaders,
+  });
 });
 
 export async function c<T>(

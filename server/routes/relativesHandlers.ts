@@ -20,6 +20,7 @@ export async function relativesHandlers(ctx: Context) {
 }
 
 async function getRelativesHandler(ctx: Context) {
+  console.log('gettingRelatives');
   const [dbErr, relatives] = await c(getRelatives());
   if (dbErr) {
     console.log(dbErr);
@@ -28,6 +29,8 @@ async function getRelativesHandler(ctx: Context) {
       headers: ctx.responseHeaders,
     });
   }
+  console.log(`🔴`);
+  console.log(relatives);
   return new Response(JSON.stringify(relatives));
 }
 
@@ -43,6 +46,7 @@ async function postRelativeHandler(ctx: Context) {
 
   const parseRes = relativeSchema.safeParse(relativeData);
   if (!parseRes.success) {
+    console.log(parseRes.error);
     return new Response(`Bad shape of relative, ${parseRes.error.message}`, {
       status: 400,
       headers: ctx.responseHeaders,

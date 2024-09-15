@@ -3,6 +3,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { Cable, Edit2, Plus } from 'lucide-react';
 
+import { createRelativeBackend } from '@/apiRoutes/relatives';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Toggle } from '@/components/ui/toggle';
@@ -34,21 +35,19 @@ export const Tools = () => {
       id: crypto.randomUUID(),
       x: snapToGrid((-canvasOffset.x + window.innerWidth / 2) / canvasZoom + newRelativesCreated * 50),
       y: snapToGrid((-canvasOffset.y + window.innerHeight / 2) / canvasZoom + newRelativesCreated * 50),
-      name: 'New Relative',
+      name: '',
       description: '',
+      birthYear: 0,
     };
     setRelatives((prev) => [...prev, newRelative]);
     setNewRelativesCreated((prev) => prev + 1);
 
-    fetch(`${BACKEND}/api/relatives`, {
-      method: 'POST',
-      body: JSON.stringify(newRelative),
-    }).catch((e) => console.log(e));
+    createRelativeBackend(newRelative);
   };
 
   return (
     <div className="absolute right-0 top-1/2 -translate-y-1/2">
-      <div className="animate-fadeIn flex flex-col items-center gap-1 rounded-l-md bg-black p-1 delay-1000">
+      <div className="animate-fadeIn flex flex-col items-center gap-1 rounded-l-md bg-black p-1 delay-200">
         <TooltipToggle tooltip="Add new relative">
           <Button
             onMouseLeave={() => setNewRelativesCreated(0)}

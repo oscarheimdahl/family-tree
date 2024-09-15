@@ -4,6 +4,7 @@ export type RelativeNodeType = {
   y: number;
   name: string;
   description?: string;
+  birthYear: number;
 };
 
 // The source is either from a node to another (couple) or from two parents to a child

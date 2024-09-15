@@ -20,7 +20,10 @@ export async function connectionsHandlers(ctx: Context) {
   if (ctx.req.method === 'DELETE')
     return await deleteAllConnectionsHandler(ctx);
 
-  return new Response('Not found', { status: 404 });
+  return new Response('Not found', {
+    status: 404,
+    headers: ctx.responseHeaders,
+  });
 }
 
 async function getConnectionsHandler(ctx: Context) {

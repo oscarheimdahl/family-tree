@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai';
 
+import { deleteConnectionBackend } from '@/apiRoutes/connections';
 import { connectionsIdentical, connectionSourceOnConnection } from '@/lib/utils';
-import { BACKEND } from '@/lib/vars';
 import { useFinalizeConnection } from '@/store/hooks';
 import { connectionsAtom, newConnectionSourceAtom, relativesAtom, selectedToolAtom } from '@/store/store';
 import { ConnectionSource } from '@/types/types';
@@ -29,10 +29,8 @@ export const Connection = ({ fromId, toId }: { fromId: ConnectionSource; toId: s
             !connectionSourceOnConnection(connection, { parent1: fromId, parent2: toId });
 
           if (!keep) {
-            fetch(`${BACKEND}/api/connections`, {
-              method: 'DELETE',
-              body: connection.id,
-            });
+            console.log('Deleteing', connection.id);
+            deleteConnectionBackend(connection.id);
           }
 
           return keep;

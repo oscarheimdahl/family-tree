@@ -2,6 +2,8 @@ import { useCallback, useRef } from 'react';
 
 import { useAtom } from 'jotai';
 
+import { createConnectionBackend } from '@/apiRoutes/connections';
+import { updateRelativeBackend } from '@/apiRoutes/relatives';
 import { connectionIncludesId } from '@/lib/utils';
 import { BACKEND } from '@/lib/vars';
 import { ConnectionSource, ConnectionType, RelativeNodeType } from '@/types/types';
@@ -53,13 +55,6 @@ export const useFinalizeConnection = () => {
   };
 };
 
-function createConnectionBackend(connection: ConnectionType) {
-  fetch(`${BACKEND}/api/connections`, {
-    method: 'POST',
-    body: JSON.stringify(connection),
-  });
-}
-
 function useDebounce<T extends (...args: any[]) => void>(callback: T, delay: number) {
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -82,12 +77,8 @@ function useDebounce<T extends (...args: any[]) => void>(callback: T, delay: num
 export const useUpdateRelative = () => {
   const [, setRelatives] = useAtom(relativesAtom);
 
-  const updateRelativeBackend = useDebounce((relative: RelativeNodeType) => {
-    console.log(relative);
-    fetch(`${BACKEND}/api/relatives`, {
-      method: 'PUT',
-      body: JSON.stringify(relative),
-    });
+  const updateRelativeBackendDebounce = useDebounce((relative: RelativeNodeType) => {
+    updateRelativeBackend(relative);
   }, 300);
 
   const setRelativesWithBackendFetch = (
@@ -101,7 +92,7 @@ export const useUpdateRelative = () => {
             ...relative,
             ...updateRelativeCallback(relative),
           };
-          updateRelativeBackend(updatedRelative);
+          updateRelativeBackendDebounce(updatedRelative);
           return updatedRelative;
         }
         return relative;

@@ -1,14 +1,16 @@
 import { ChangeEvent } from 'react';
 
-import { Separator } from '@radix-ui/react-separator';
 import { useAtom } from 'jotai';
 import { Cable, Trash, X } from 'lucide-react';
 import Image from 'next/image';
 
+import { deleteConnectionBackend } from '@/apiRoutes/connections';
 import profileImage from '@/assets/profile.png';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import { cn, connectionIncludesId } from '@/lib/utils';
 import { useFinalizeConnection, useUpdateRelative } from '@/store/hooks';
 import {
@@ -23,7 +25,7 @@ import { type RelativeNodeType } from '@/types/types';
 export const CARD_WIDTH = 250;
 
 export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType }) => {
-  const { id, x, y, name, description } = relativeNode;
+  const { id, x, y, name, description, birthYear } = relativeNode;
   const [newConnectionSource] = useAtom(newConnectionSourceAtom);
   const [, setDraggedRelative] = useAtom(draggedRelativeAtom);
   const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
@@ -34,6 +36,16 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateRelative(id, () => ({
       name: e.target.value ?? '',
+    }));
+  };
+  const handlebirthYearChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateRelative(id, () => ({
+      birthYear: +e.target.value || 0,
+    }));
+  };
+  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    updateRelative(id, () => ({
+      description: e.target.value ?? '',
     }));
   };
 
@@ -57,28 +69,56 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
           )}
         >
           <Image
-            alt="asd"
-            width={64}
-            height={64}
+            alt="relative"
+            width={128}
+            height={128}
             src={profileImage}
-            className="absolute -top-6 left-1/2 size-16 -translate-x-1/2 rounded-full bg-slate-800 ring ring-white"
+            className="pointer-events-none absolute -top-6 left-1/2 size-16 -translate-x-1/2 rounded-full bg-slate-800 ring ring-white"
           ></Image>
           {selectedTool === 'edit' ? (
-            <Input
-              onMouseDown={(e) => e.stopPropagation()}
-              value={name}
-              className="-ml-1 pl-1 text-xl font-bold"
-              onChange={handleNameChange}
-            />
+            <>
+              <Input
+                placeholder="Name"
+                onMouseDown={(e) => e.stopPropagation()}
+                value={name}
+                className="text-xl font-bold"
+                onChange={handleNameChange}
+              />
+              <Input
+                type="number"
+                placeholder="Birthyear"
+                onWheel={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                value={birthYear || Number.NaN}
+                className="font-bold"
+                onChange={handlebirthYearChange}
+              />
+            </>
           ) : (
-            <h1 className="text-xl font-bold">{name}</h1>
+            <div>
+              <h1 className="text-xl font-bold">{name || <span className="opacity-50">Name</span>}</h1>
+              <h1 className="font-bold text-slate-700">
+                {birthYear || <span className="text-white opacity-50">Birthyear</span>}
+              </h1>
+            </div>
           )}
 
           <Separator />
-          <p>{description}</p>
-          <p>
+          {selectedTool === 'edit' ? (
+            <Textarea
+              onMouseDown={(e) => e.stopPropagation()}
+              onChange={handleDescriptionChange}
+              value={description}
+              className="text-base"
+            />
+          ) : (
+            <p className={cn('max-h-24 overflow-hidden text-clip')}>
+              {description || <span className="opacity-50">Description</span>}
+            </p>
+          )}
+          {/* <p>
             x:{removeDecimals(x)} y:{removeDecimals(y)}
-          </p>
+          </p> */}
           <NewConnectionSourceButton id={id} />
           <DeleteButton id={id} />
         </Card>
@@ -124,7 +164,14 @@ const DeleteButton = ({ id }: { id: string }) => {
           return prev.filter((relative) => relative.id !== id);
         });
         setConnections((prev) => {
-          return prev.filter((connection) => !connectionIncludesId(connection, id));
+          return prev.filter((connection) => {
+            const remove = connectionIncludesId(connection, id);
+            if (remove) {
+              deleteConnectionBackend(connection.id);
+              deleteConnectionBackend(id);
+            }
+            return !remove;
+          });
         });
       }}
       variant={'destructive'}

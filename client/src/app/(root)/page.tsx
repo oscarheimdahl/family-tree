@@ -9,8 +9,6 @@ export default async function Page() {
   const relatives = await getRelatives();
   const connections = await getConnections();
 
-  console.log({ relatives });
-
   return <App serverRelatives={relatives} serverConnections={connections}></App>;
 }
 

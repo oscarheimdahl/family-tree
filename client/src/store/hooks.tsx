@@ -50,7 +50,8 @@ export const useFinalizeConnection = () => {
         return prev;
 
       setNewConnectionSource(undefined);
-      createConnectionBackend(newConnection);
+      withOnErrorToast(createConnectionBackend)(newConnection);
+
       return [...prev, newConnection];
     });
   };

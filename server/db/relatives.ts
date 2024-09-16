@@ -58,7 +58,10 @@ export async function updateRelative(relative: Partial<Relative>) {
   const relatives = (result.value ?? []) as Relative[];
   const newRelatives = relatives.map((oldRelative) => {
     if (oldRelative.id === relative.id) {
-      return relative;
+      return {
+        ...oldRelative,
+        ...relative,
+      };
     }
     return oldRelative;
   });

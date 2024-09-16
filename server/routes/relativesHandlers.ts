@@ -95,7 +95,7 @@ async function updateRelativeHandler(ctx: Context) {
     });
   }
 
-  const parseRes = relativeSchema.safeParse(relativeData);
+  const parseRes = relativeSchema.partial().safeParse(relativeData);
   if (!parseRes.success) {
     console.log(parseRes.error);
     return new Response(`Bad shape of relative, ${parseRes.error.message}`, {

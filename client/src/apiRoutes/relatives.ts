@@ -2,10 +2,11 @@ import { BACKEND } from '@/lib/vars';
 import { RelativeNodeType } from '@/types/types';
 
 export async function updateRelativeBackend(relative: RelativeNodeType) {
-  fetch(`${BACKEND}/api/relatives`, {
+  const res = await fetch(`${BACKEND}/api/relatives`, {
     method: 'PUT',
     body: JSON.stringify(relative),
   });
+  if (!res.ok) throw new Error();
 }
 
 export async function createRelativeBackend(newRelative: RelativeNodeType) {

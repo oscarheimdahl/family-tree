@@ -6,6 +6,8 @@ import './styles/other.css';
 
 import { Provider } from 'jotai';
 
+import { Toaster } from '@/components/ui/sonner';
+
 import { Providers } from './Providers';
 
 const geistSans = localFont({
@@ -35,6 +37,7 @@ export default async function RootLayout({
         <Provider>
           <Providers>{children}</Providers>
         </Provider>
+        <Toaster />
       </body>
     </html>
   );

@@ -1,11 +1,12 @@
 import { useCallback, useRef } from 'react';
 
 import { useAtom } from 'jotai';
+import { Ban } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { createConnectionBackend } from '@/apiRoutes/connections';
 import { updateRelativeBackend } from '@/apiRoutes/relatives';
 import { connectionIncludesId } from '@/lib/utils';
-import { BACKEND } from '@/lib/vars';
 import { ConnectionSource, ConnectionType, RelativeNodeType } from '@/types/types';
 
 import { connectionsAtom, newConnectionSourceAtom, relativesAtom } from './store';
@@ -74,11 +75,26 @@ function useDebounce<T extends (...args: any[]) => void>(callback: T, delay: num
   return debouncedFunction;
 }
 
+export const withOnErrorToast = <T extends (...args: any[]) => any>(fn: T) => {
+  return async (...args: Parameters<T>): Promise<ReturnType<T> | void> => {
+    try {
+      return await fn(...args);
+    } catch (e) {
+      toast.error('Unable to sync', {
+        style: {
+          border: '1px solid #7f0e2a',
+          backgroundColor: '#000000',
+        },
+      });
+    }
+  };
+};
+
 export const useUpdateRelative = () => {
   const [, setRelatives] = useAtom(relativesAtom);
 
   const updateRelativeBackendDebounce = useDebounce((relative: RelativeNodeType) => {
-    updateRelativeBackend(relative);
+    withOnErrorToast(updateRelativeBackend)(relative);
   }, 300);
 
   const setRelativesWithBackendFetch = (

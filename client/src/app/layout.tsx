@@ -33,6 +33,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html className="dark" lang="en">
+      <head>
+        <title>Pettersson Family Tree</title>
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Provider>
           <Providers>{children}</Providers>

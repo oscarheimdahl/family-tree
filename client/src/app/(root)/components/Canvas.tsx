@@ -159,7 +159,7 @@ const Canvas = ({ children }: { children: ReactNode }) => {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
-      className="rounded-sm bg-transparent ring ring-[#ffffff11]"
+      className="rounded-sm bg-transparent ring ring-[#ffffff]"
       style={{
         width: `${CANVAS_WIDTH}px`,
         height: `${CANVAS_HEIGHT}px`,

@@ -8,20 +8,18 @@ import { ConnectionType, RelativeNodeType } from '@/types/types';
 
 import { CanvasContainer } from './components/Canvas';
 import { Connection } from './components/Connection';
-import { Cursor } from './components/Cursor';
-import { ImageInput } from './components/ImageInput';
 import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
 import { SelectRect } from './components/SelectRect';
 import { Tools } from './components/Tools';
 
-export default function App({
+export const App = ({
   serverRelatives,
   serverConnections,
 }: {
   serverRelatives: RelativeNodeType[];
   serverConnections: ConnectionType[];
-}) {
+}) => {
   useHydrateAtoms([
     [relativesAtom, serverRelatives],
     [connectionsAtom, serverConnections],
@@ -45,7 +43,7 @@ export default function App({
       <Tools />
     </div>
   );
-}
+};
 
 export const Relatives = () => {
   const [relatives] = useAtom(relativesAtom);

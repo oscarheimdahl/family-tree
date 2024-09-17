@@ -7,6 +7,7 @@ const canvasCenterWidth = -CANVAS_WIDTH / 2;
 const canvasCenterHeight = -CANVAS_HEIGHT / 2;
 
 export const pageMousePositionAtom = atom({ x: 0, y: 0 });
+export const selectStartPositionAtom = atom<{ x: number; y: number } | undefined>(undefined);
 export const canvasTransformOriginAtom = atom({ x: 0, y: 0 });
 export const canvasOffsetAtom = atom({ x: canvasCenterWidth, y: canvasCenterHeight });
 export const canvasZoomAtom = atom(1);

@@ -9,8 +9,10 @@ import { ConnectionType, RelativeNodeType } from '@/types/types';
 import { CanvasContainer } from './components/Canvas';
 import { Connection } from './components/Connection';
 import { Cursor } from './components/Cursor';
+import { ImageInput } from './components/ImageInput';
 import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
+import { SelectRect } from './components/SelectRect';
 import { Tools } from './components/Tools';
 
 export default function App({
@@ -25,7 +27,8 @@ export default function App({
     [connectionsAtom, serverConnections],
   ]);
   const [connections] = useAtom(connectionsAtom);
-  const [relatives] = useAtom(relativesAtom);
+
+  // return <ImageInput />;
 
   return (
     <div className="h-full w-full bg-gradient-to-br from-slate-900 to-gray-900">
@@ -35,14 +38,23 @@ export default function App({
         {connections.map((connection, i) => {
           return <Connection fromId={connection.source} toId={connection.target} key={i} />;
         })}
-        <div className="pointer-events-none absolute left-0 top-0 h-full w-full">
-          {relatives.map((relativeNode, i) => {
-            return <RelativeNode key={i} relativeNode={relativeNode} />;
-          })}
-        </div>
+        <Relatives />
+        <SelectRect />
       </CanvasContainer>
-      <Cursor />
+      {/* <Cursor /> */}
       <Tools />
     </div>
   );
 }
+
+export const Relatives = () => {
+  const [relatives] = useAtom(relativesAtom);
+
+  return (
+    <div className="pointer-events-none absolute left-0 top-0 h-full w-full">
+      {relatives.map((relativeNode, i) => {
+        return <RelativeNode key={i} relativeNode={relativeNode} />;
+      })}
+    </div>
+  );
+};

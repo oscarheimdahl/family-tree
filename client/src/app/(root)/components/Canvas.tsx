@@ -14,6 +14,7 @@ import {
   pageMousePositionAtom,
   relativesAtom,
   selectedToolAtom,
+  selectStartPositionAtom,
 } from '@/store/store';
 
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../data';
@@ -33,10 +34,6 @@ export const CanvasContainer = ({ children }: { children: ReactNode }) => {
   const [draggingCanvas, setDraggingCanvas] = useAtom(draggingCanvasAtom);
   const [, setCanvasOffset] = useAtom(canvasOffsetAtom);
 
-  const handleCanvasMouseDown = (e: MouseEvent<HTMLDivElement>) => {
-    setDraggingCanvas(true);
-  };
-
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!draggingCanvas) return;
     setCanvasOffset((prev) => {
@@ -53,18 +50,12 @@ export const CanvasContainer = ({ children }: { children: ReactNode }) => {
 
   return (
     <div onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} className="h-full w-full overflow-hidden">
-      <Canvas onMouseDown={handleCanvasMouseDown}>{children}</Canvas>
+      <Canvas>{children}</Canvas>
     </div>
   );
 };
 
-const Canvas = ({
-  children,
-  onMouseDown,
-}: {
-  children: ReactNode;
-  onMouseDown: (e: MouseEvent<HTMLDivElement>) => void;
-}) => {
+const Canvas = ({ children }: { children: ReactNode }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const [offset] = useAtom(canvasOffsetAtom);
@@ -77,26 +68,33 @@ const Canvas = ({
   const [canvasOffset, setCanvasOffset] = useAtom(canvasOffsetAtom);
   const [, setCanvasZoom] = useAtom(canvasZoomAtom);
   const [, setDraggingCanvas] = useAtom(draggingCanvasAtom);
+  const [, setSelectStartPositionAtom] = useAtom(selectStartPositionAtom);
+  const [relatives, setRelatives] = useAtom(relativesAtom);
 
   const canvasMousePosition = useCanvasMousePosition();
 
   const handleMouseUp = () => {
+    setSelectStartPositionAtom(undefined);
     if (draggedRelative === undefined) return;
 
-    updateRelative(draggedRelative, (prevRelative) => ({
-      x: snapToGrid(prevRelative.x),
-      y: snapToGrid(prevRelative.y),
-    }));
+    relatives.forEach((relative) => {
+      if (!relative.selected && draggedRelative !== relative.id) return;
+      updateRelative(relative.id, (prevRelative) => ({
+        x: snapToGrid(prevRelative.x),
+        y: snapToGrid(prevRelative.y),
+      }));
+    });
+
     setDraggedRelative(undefined);
   };
 
   const canScroll = useRef(true);
   const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
     if (!canScroll.current) return;
-    const delta = e.deltaY;
-
+    if (e.shiftKey) return;
     if (canvasRef.current === null) return;
 
+    const delta = e.deltaY;
     const scaleAmount = 0.1;
     const _newCanvasZoom = delta < 0 ? canvasZoom + scaleAmount : canvasZoom - scaleAmount;
     const newCanvasZoom = clamp(0.25, _newCanvasZoom, 2);
@@ -127,10 +125,13 @@ const Canvas = ({
 
     if (draggedRelative === undefined) return;
 
-    updateRelative(draggedRelative, (prevRelative) => ({
-      x: clamp(0, prevRelative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
-      y: clamp(0, prevRelative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
-    }));
+    relatives.forEach((relative) => {
+      if (!relative.selected && draggedRelative !== relative.id) return;
+      updateRelative(relative.id, (prevRelative) => ({
+        x: clamp(0, prevRelative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
+        y: clamp(0, prevRelative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
+      }));
+    });
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
@@ -139,8 +140,13 @@ const Canvas = ({
   };
 
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
-    onMouseDown(e);
     if (e.target !== canvasRef.current) return;
+
+    setRelatives((prev) => prev.map((relative) => ({ ...relative, selected: false })));
+    if (e.shiftKey) {
+      setSelectStartPositionAtom({ x: canvasMousePosition.x, y: canvasMousePosition.y });
+      return;
+    }
 
     setDraggingCanvas(true);
     setSelectedTool(undefined);

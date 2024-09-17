@@ -3,7 +3,7 @@ import { relative } from 'path';
 import { BACKEND } from '@/lib/vars';
 import { ConnectionType, RelativeNodeType } from '@/types/types';
 
-import App from './app';
+import App from './App';
 
 export default async function Page() {
   const relatives = await getRelatives();

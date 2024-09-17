@@ -37,7 +37,7 @@ export const Line = ({
         />
         {/* visual line */}
         <line
-          className={cn('stroke-rose-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700')}
+          className={cn('stroke-orange-300', hoverStyle === 'delete' && 'group-hover:stroke-slate-700')}
           strokeLinecap="round"
           strokeWidth={5}
           x1={x1}

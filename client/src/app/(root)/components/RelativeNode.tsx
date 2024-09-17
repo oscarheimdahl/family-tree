@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 
 import { useAtom } from 'jotai';
 import { Cable, Trash, X } from 'lucide-react';
@@ -19,13 +19,17 @@ import {
   newConnectionSourceAtom,
   relativesAtom,
   selectedToolAtom,
+  selectStartPositionAtom,
 } from '@/store/store';
 import { type RelativeNodeType } from '@/types/types';
+
+import { useCanvasMousePosition } from './Canvas';
+import { useIsInSelect } from './SelectRect';
 
 export const CARD_WIDTH = 250;
 
 export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType }) => {
-  const { id, x, y, name, description, birthYear } = relativeNode;
+  const { id, x, y, name, description, birthYear, selected } = relativeNode;
   const [newConnectionSource] = useAtom(newConnectionSourceAtom);
   const [, setDraggedRelative] = useAtom(draggedRelativeAtom);
   const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
@@ -65,7 +69,8 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
           className={cn(
             'pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 bg-black p-2 pt-12',
             selectedTool === 'edit' && 'cursor-auto',
-            newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-white hover:ring',
+            selected && 'ring ring-gray-400',
+            newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-orange-300 hover:ring',
           )}
         >
           <Image
@@ -181,7 +186,3 @@ const DeleteButton = ({ id }: { id: string }) => {
     </Button>
   );
 };
-
-function removeDecimals(number: number) {
-  return Math.round(number);
-}

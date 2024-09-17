@@ -13,7 +13,7 @@ import { RelativeNode } from './components/RelativeNode';
 import { SelectRect } from './components/SelectRect';
 import { Tools } from './components/Tools';
 
-export const App = ({
+export const CanvasApp = ({
   serverRelatives,
   serverConnections,
 }: {

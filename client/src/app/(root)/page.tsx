@@ -1,13 +1,13 @@
 import { BACKEND } from '@/lib/vars';
 import { ConnectionType, RelativeNodeType } from '@/types/types';
 
-import { App } from './App';
+import { CanvasApp } from './CanvasApp';
 
 export default async function Page() {
   const relatives = await getRelatives();
   const connections = await getConnections();
 
-  return <App serverRelatives={relatives} serverConnections={connections}></App>;
+  return <CanvasApp serverRelatives={relatives} serverConnections={connections}></CanvasApp>;
 }
 
 async function getRelatives() {

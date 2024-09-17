@@ -12,6 +12,7 @@ import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
 import { SelectRect } from './components/SelectRect';
 import { Tools } from './components/Tools';
+import { Zoom } from './components/Zoom';
 
 export const CanvasApp = ({
   serverRelatives,
@@ -41,6 +42,7 @@ export const CanvasApp = ({
       </CanvasContainer>
       {/* <Cursor /> */}
       <Tools />
+      <Zoom />
     </div>
   );
 };

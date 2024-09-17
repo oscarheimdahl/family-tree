@@ -1,8 +1,7 @@
 import { useAtom } from 'jotai';
 
+import { useCanvasMousePosition } from '@/lib/hooks/useCanvasMousePosition';
 import { canvasOffsetAtom, canvasZoomAtom, pageMousePositionAtom } from '@/store/store';
-
-import { useCanvasMousePosition } from './Canvas';
 
 function roundNumberTo2Decimals(number: number) {
   return Math.round(number * 100) / 100;

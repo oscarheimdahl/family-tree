@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { Cable, Edit2, Plus } from 'lucide-react';
+import { Cable, Edit2, Plus, UserRoundPlus } from 'lucide-react';
 
 import { createRelativeBackend } from '@/apiRoutes/relatives';
 import { Button } from '@/components/ui/button';
@@ -47,20 +47,20 @@ export const Tools = () => {
 
   return (
     <div className="absolute right-0 top-1/2 -translate-y-1/2">
-      <div className="animate-fadeIn flex flex-col items-center gap-1 rounded-l-md bg-black p-1 delay-200">
+      <div className="animate-fadeInRight flex flex-col items-center gap-1 rounded-l-md border bg-black p-1 delay-200">
         <TooltipToggle tooltip="Add new relative">
           <Button
             onMouseLeave={() => setNewRelativesCreated(0)}
             onClick={addNewRelative}
             variant={'ghost'}
-            className="w-12 flex-grow p-0"
+            className="size-12 flex-grow p-0"
           >
-            <Plus />
+            <UserRoundPlus />
           </Button>
         </TooltipToggle>
-        <Separator className="w-3/4 self-center" />
         <TooltipToggle tooltip="Add Connection">
           <Toggle
+            className="size-12 p-0"
             onPressedChange={(pressed) => setSelectedTool(pressed ? 'add-connection' : undefined)}
             pressed={selectedTool === 'add-connection'}
           >
@@ -69,6 +69,7 @@ export const Tools = () => {
         </TooltipToggle>
         <TooltipToggle tooltip="Edit Relatives">
           <Toggle
+            className="size-12 p-0"
             onPressedChange={(pressed) => setSelectedTool(pressed ? 'edit' : undefined)}
             pressed={selectedTool === 'edit'}
           >

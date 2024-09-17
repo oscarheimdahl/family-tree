@@ -1,8 +1,7 @@
-import { MultipartReader } from 'https://deno.land/std@0.99.0/mime/mod.ts';
-
 import {
   addRelative,
   deleteAllRelatives,
+  deleteRelative,
   getRelatives,
   relativeSchema,
   updateRelative,
@@ -17,6 +16,10 @@ export async function relativesHandlers(ctx: Context) {
   const route = path.at(3);
   if (route === 'image') {
     if (ctx.req.method === 'PUT') return await updateRelativeImageHandler(ctx);
+  }
+  if (route) {
+    if (ctx.req.method === 'DELETE')
+      return await deleteRelativeHandler(ctx, route);
   }
   if (ctx.req.method === 'GET') return await getRelativesHandler(ctx);
   if (ctx.req.method === 'POST') return await postRelativeHandler(ctx);
@@ -75,6 +78,18 @@ async function postRelativeHandler(ctx: Context) {
 
 async function deleteAllRelativesHandler(ctx: Context) {
   const [dbErr] = await c(deleteAllRelatives());
+  if (dbErr) {
+    console.log(dbErr);
+    return new Response('Error deleting relatives', {
+      status: 500,
+      headers: ctx.responseHeaders,
+    });
+  }
+  return new Response(null, { status: 204, headers: ctx.responseHeaders });
+}
+
+async function deleteRelativeHandler(ctx: Context, id: string) {
+  const [dbErr] = await c(deleteRelative(id));
   if (dbErr) {
     console.log(dbErr);
     return new Response('Error deleting relatives', {

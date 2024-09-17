@@ -94,13 +94,18 @@ export const withOnErrorToast = <T extends (...args: any[]) => any>(fn: T) => {
 export const useUpdateRelative = () => {
   const [, setRelatives] = useAtom(relativesAtom);
 
+  const backendUpdate = (relative: RelativeNodeType) => withOnErrorToast(updateRelativeBackend)(relative);
+
   const updateRelativeBackendDebounce = useDebounce((relative: RelativeNodeType) => {
-    withOnErrorToast(updateRelativeBackend)(relative);
+    backendUpdate(relative);
   }, 300);
 
   const setRelativesWithBackendFetch = (
     id: string,
     updateRelativeCallback: (prevRelative: RelativeNodeType) => Partial<RelativeNodeType>,
+    options: {
+      debounce?: boolean;
+    } = { debounce: true },
   ) => {
     setRelatives((prev) => {
       return prev.map((relative) => {
@@ -109,7 +114,8 @@ export const useUpdateRelative = () => {
             ...relative,
             ...updateRelativeCallback(relative),
           };
-          updateRelativeBackendDebounce(updatedRelative);
+          if (options.debounce) updateRelativeBackendDebounce(updatedRelative);
+          else backendUpdate(updatedRelative);
           return updatedRelative;
         }
         return relative;

@@ -16,3 +16,10 @@ export async function createRelativeBackend(newRelative: RelativeNodeType) {
   });
   if (!res.ok) throw new Error();
 }
+
+export async function deleteRelativeBackend(relativeId: string) {
+  const res = await fetch(`${BACKEND}/api/relatives/${relativeId}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error();
+}

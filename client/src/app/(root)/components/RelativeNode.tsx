@@ -1,10 +1,11 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
 
 import { useAtom } from 'jotai';
 import { Cable, Trash, X } from 'lucide-react';
 import Image from 'next/image';
 
 import { deleteConnectionBackend } from '@/apiRoutes/connections';
+import { deleteRelativeBackend } from '@/apiRoutes/relatives';
 import profileImage from '@/assets/profile.png';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,19 +13,15 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { cn, connectionIncludesId } from '@/lib/utils';
-import { useFinalizeConnection, useUpdateRelative } from '@/store/hooks';
+import { useFinalizeConnection, useUpdateRelative, withOnErrorToast } from '@/store/hooks';
 import {
   connectionsAtom,
   draggedRelativeAtom,
   newConnectionSourceAtom,
   relativesAtom,
   selectedToolAtom,
-  selectStartPositionAtom,
 } from '@/store/store';
 import { type RelativeNodeType } from '@/types/types';
-
-import { useCanvasMousePosition } from './Canvas';
-import { useIsInSelect } from './SelectRect';
 
 export const CARD_WIDTH = 250;
 
@@ -94,7 +91,7 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
                 placeholder="Birthyear"
                 onWheel={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
-                value={birthYear || Number.NaN}
+                value={birthYear || ''}
                 className="font-bold"
                 onChange={handlebirthYearChange}
               />
@@ -166,7 +163,13 @@ const DeleteButton = ({ id }: { id: string }) => {
     <Button
       onClick={() => {
         setRelatives((prev) => {
-          return prev.filter((relative) => relative.id !== id);
+          return prev.filter((relative) => {
+            const remove = relative.id !== id;
+            if (remove) {
+              withOnErrorToast(deleteRelativeBackend)(id);
+            }
+            return remove;
+          });
         });
         setConnections((prev) => {
           return prev.filter((connection) => {

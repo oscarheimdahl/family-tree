@@ -1,4 +1,22 @@
-@keyframes fadeIn {
+@keyframes fadeInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInLeft {
+  animation-name: fadeInLeft;
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  transform: translateX(-100%);
+}
+
+@keyframes fadeInRight {
   from {
     transform: translateX(100%);
   }
@@ -7,8 +25,8 @@
   }
 }
 
-.animate-fadeIn {
-  animation-name: fadeIn;
+.animate-fadeInRight {
+  animation-name: fadeInRight;
   animation-duration: 200ms;
   animation-timing-function: ease-out;
   animation-iteration-count: 1;

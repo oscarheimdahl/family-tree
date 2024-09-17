@@ -4,6 +4,8 @@ import { ReactNode, useRef, WheelEvent, type MouseEvent } from 'react';
 
 import { useAtom } from 'jotai';
 
+import { useCanvasMousePosition } from '@/lib/hooks/useCanvasMousePosition';
+import { useCanvasZoomOnPoint } from '@/lib/hooks/useCanvasZoomOnPoint';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, MAX_ZOOM, MIN_ZOOM } from '@/lib/vars';
 import { useUpdateRelative } from '@/store/hooks';
 import {
@@ -17,17 +19,6 @@ import {
   selectedToolAtom,
   selectStartPositionAtom,
 } from '@/store/store';
-
-export const useCanvasMousePosition = () => {
-  const [pageMousePosition] = useAtom(pageMousePositionAtom);
-  const [canvasOffset] = useAtom(canvasOffsetAtom);
-  const [canvasZoom] = useAtom(canvasZoomAtom);
-
-  return {
-    x: (pageMousePosition.x - canvasOffset.x) / canvasZoom,
-    y: (pageMousePosition.y - canvasOffset.y) / canvasZoom,
-  };
-};
 
 export const CanvasContainer = ({ children }: { children: ReactNode }) => {
   const [draggingCanvas, setDraggingCanvas] = useAtom(draggingCanvasAtom);
@@ -64,13 +55,12 @@ const Canvas = ({ children }: { children: ReactNode }) => {
   const [pageMousePosition, setMousePosition] = useAtom(pageMousePositionAtom);
   const [, setSelectedTool] = useAtom(selectedToolAtom);
   const [, setNewConnectionSource] = useAtom(newConnectionSourceAtom);
-  const [canvasOffset, setCanvasOffset] = useAtom(canvasOffsetAtom);
-  const [, setCanvasZoom] = useAtom(canvasZoomAtom);
   const [, setDraggingCanvas] = useAtom(draggingCanvasAtom);
   const [, setSelectStartPositionAtom] = useAtom(selectStartPositionAtom);
   const [relatives, setRelatives] = useAtom(relativesAtom);
 
   const canvasMousePosition = useCanvasMousePosition();
+  const zoomOnPoint = useCanvasZoomOnPoint();
 
   const handleMouseUp = () => {
     setSelectStartPositionAtom(undefined);
@@ -78,10 +68,14 @@ const Canvas = ({ children }: { children: ReactNode }) => {
 
     relatives.forEach((relative) => {
       if (!relative.selected && draggedRelative !== relative.id) return;
-      updateRelative(relative.id, (prevRelative) => ({
-        x: snapToGrid(prevRelative.x),
-        y: snapToGrid(prevRelative.y),
-      }));
+      updateRelative(
+        relative.id,
+        (prevRelative) => ({
+          x: snapToGrid(prevRelative.x),
+          y: snapToGrid(prevRelative.y),
+        }),
+        { debounce: false },
+      );
     });
 
     setDraggedRelative(undefined);
@@ -95,22 +89,10 @@ const Canvas = ({ children }: { children: ReactNode }) => {
 
     const delta = e.deltaY;
     const scaleAmount = 0.1;
-    const _newCanvasZoom = delta < 0 ? canvasZoom + scaleAmount : canvasZoom - scaleAmount;
-    const newCanvasZoom = clamp(MIN_ZOOM, _newCanvasZoom, MAX_ZOOM);
+    const newCanvasZoom = delta < 0 ? canvasZoom + scaleAmount : canvasZoom - scaleAmount;
 
-    if (newCanvasZoom === canvasZoom) return;
+    zoomOnPoint(newCanvasZoom, pageMousePosition);
 
-    setCanvasZoom(newCanvasZoom);
-
-    const newCanvasMousePositionX = (pageMousePosition.x - canvasOffset.x) / newCanvasZoom;
-    const newCanvasMousePositionY = (pageMousePosition.y - canvasOffset.y) / newCanvasZoom;
-    const canvasMousePositionDriftX = newCanvasMousePositionX - canvasMousePosition.x;
-    const canvasMousePositionDriftY = newCanvasMousePositionY - canvasMousePosition.y;
-
-    setCanvasOffset((prev) => ({
-      x: prev.x + canvasMousePositionDriftX * newCanvasZoom,
-      y: prev.y + canvasMousePositionDriftY * newCanvasZoom,
-    }));
     canScroll.current = false;
     setTimeout(() => {
       canScroll.current = true;
@@ -126,10 +108,14 @@ const Canvas = ({ children }: { children: ReactNode }) => {
 
     relatives.forEach((relative) => {
       if (!relative.selected && draggedRelative !== relative.id) return;
-      updateRelative(relative.id, (prevRelative) => ({
-        x: clamp(0, prevRelative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
-        y: clamp(0, prevRelative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
-      }));
+      updateRelative(
+        relative.id,
+        (prevRelative) => ({
+          x: clamp(0, prevRelative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
+          y: clamp(0, prevRelative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
+        }),
+        { debounce: false },
+      );
     });
   };
 

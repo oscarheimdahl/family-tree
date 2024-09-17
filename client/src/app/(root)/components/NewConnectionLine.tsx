@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 
 import { useAtom } from 'jotai';
 
+import { useCanvasMousePosition } from '@/lib/hooks/useCanvasMousePosition';
 import { newConnectionSourceAtom, relativesAtom } from '@/store/store';
 
-import { useCanvasMousePosition } from './Canvas';
 import { Line } from './Line';
 
 export const NewConnectionLine = () => {

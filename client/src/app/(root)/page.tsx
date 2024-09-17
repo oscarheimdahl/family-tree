@@ -1,5 +1,3 @@
-import { relative } from 'path';
-
 import { BACKEND } from '@/lib/vars';
 import { ConnectionType, RelativeNodeType } from '@/types/types';
 

@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/app/(root)/data';
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/lib/vars';
 import { ConnectionSource, ConnectionType, RelativeNodeType } from '@/types/types';
 
 const canvasCenterWidth = -CANVAS_WIDTH / 2;

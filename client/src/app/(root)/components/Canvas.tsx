@@ -4,6 +4,7 @@ import { ReactNode, useRef, WheelEvent, type MouseEvent } from 'react';
 
 import { useAtom } from 'jotai';
 
+import { CANVAS_HEIGHT, CANVAS_WIDTH, MAX_ZOOM, MIN_ZOOM } from '@/lib/vars';
 import { useUpdateRelative } from '@/store/hooks';
 import {
   canvasOffsetAtom,
@@ -16,8 +17,6 @@ import {
   selectedToolAtom,
   selectStartPositionAtom,
 } from '@/store/store';
-
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../data';
 
 export const useCanvasMousePosition = () => {
   const [pageMousePosition] = useAtom(pageMousePositionAtom);
@@ -97,7 +96,7 @@ const Canvas = ({ children }: { children: ReactNode }) => {
     const delta = e.deltaY;
     const scaleAmount = 0.1;
     const _newCanvasZoom = delta < 0 ? canvasZoom + scaleAmount : canvasZoom - scaleAmount;
-    const newCanvasZoom = clamp(0.25, _newCanvasZoom, 2);
+    const newCanvasZoom = clamp(MIN_ZOOM, _newCanvasZoom, MAX_ZOOM);
 
     if (newCanvasZoom === canvasZoom) return;
 

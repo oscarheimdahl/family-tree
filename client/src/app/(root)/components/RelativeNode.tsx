@@ -1,7 +1,7 @@
 import { ChangeEvent } from 'react';
 
 import { useAtom } from 'jotai';
-import { Cable, Trash, X } from 'lucide-react';
+import { Cable, Edit, Trash, X } from 'lucide-react';
 import Image from 'next/image';
 
 import { deleteConnectionBackend } from '@/apiRoutes/connections';
@@ -64,19 +64,13 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
             finalizeConnection(id);
           }}
           className={cn(
-            'pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 bg-black p-2 pt-12',
+            'pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 bg-black p-2 pt-14',
             selectedTool === 'edit' && 'cursor-auto',
             selected && 'ring ring-gray-400',
             newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-orange-300 hover:ring',
           )}
         >
-          <Image
-            alt="relative"
-            width={128}
-            height={128}
-            src={profileImage}
-            className="pointer-events-none absolute -top-6 left-1/2 size-16 -translate-x-1/2 rounded-full bg-slate-800 ring ring-white"
-          ></Image>
+          <ProfileImage />
           {selectedTool === 'edit' ? (
             <>
               <Input
@@ -187,5 +181,20 @@ const DeleteButton = ({ id }: { id: string }) => {
     >
       {<Trash />}
     </Button>
+  );
+};
+
+export const ProfileImage = () => {
+  const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
+
+  return (
+    <div className="group absolute -top-12 left-1/2 grid size-24 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-slate-800 ring ring-white [&>*]:[grid-area:1/1]">
+      <Image alt="relative" width={96} height={96} src={profileImage}></Image>
+      {selectedTool === 'edit' && (
+        <button className="hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex">
+          <Edit size={32} />
+        </button>
+      )}
+    </div>
   );
 };

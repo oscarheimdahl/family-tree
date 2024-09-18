@@ -39,7 +39,7 @@ export const CanvasContainer = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} className="h-full w-full overflow-hidden">
+    <div onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} className="h-full w-full overflow-hidden bg-gray-950">
       <Canvas>{children}</Canvas>
     </div>
   );
@@ -145,7 +145,7 @@ const Canvas = ({ children }: { children: ReactNode }) => {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
-      className="rounded-sm bg-transparent ring ring-[#ffffff]"
+      className="rounded-sm bg-slate-900 ring ring-[#ffffff]"
       style={{
         width: `${CANVAS_WIDTH}px`,
         height: `${CANVAS_HEIGHT}px`,

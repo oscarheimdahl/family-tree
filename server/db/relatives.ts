@@ -22,7 +22,6 @@ export async function addRelative(relative: Relative) {
   relatives.push(relative);
 
   await _db.set(['relatives'], relatives);
-  console.log('Added relative: ', relative.name);
 }
 
 export async function getRelative(id: string) {

@@ -30,7 +30,7 @@ export const CanvasApp = ({
   // return <ImageInput />;
 
   return (
-    <div className="h-full w-full bg-gradient-to-br from-slate-900 to-gray-900">
+    <div className="h-full w-full">
       <CanvasContainer>
         <NewConnectionLine />
 

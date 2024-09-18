@@ -17,7 +17,8 @@ export const Zoom = () => {
   };
 
   return (
-    <div className="animate-fadeInLeft absolute bottom-0 left-0 flex flex-col gap-2 p-4 delay-200">
+    <div className="animate-fadeInLeft absolute bottom-0 left-0 flex flex-col items-center gap-2 p-4 delay-200">
+      <span className="text-sm">{roundNumberTo2Decimals(zoom)}%</span>
       <Button variant={'ghost'} onClick={handleZoomIn} className="border bg-black p-2 text-white">
         <Plus />
       </Button>
@@ -27,3 +28,7 @@ export const Zoom = () => {
     </div>
   );
 };
+
+function roundNumberTo2Decimals(number: number) {
+  return Math.round(number * 100);
+}

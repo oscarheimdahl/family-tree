@@ -66,17 +66,14 @@ const Canvas = ({ children }: { children: ReactNode }) => {
     setSelectStartPositionAtom(undefined);
     if (draggedRelative === undefined) return;
 
-    relatives.forEach((relative) => {
-      if (!relative.selected && draggedRelative !== relative.id) return;
-      updateRelative(
-        relative.id,
-        (prevRelative) => ({
-          x: snapToGrid(prevRelative.x),
-          y: snapToGrid(prevRelative.y),
-        }),
-        { debounce: false },
-      );
-    });
+    const relativesToUpdate = relatives
+      .filter((relative) => relative.selected || draggedRelative === relative.id)
+      .map((relative) => relative.id);
+
+    updateRelative(relativesToUpdate, (prevRelative) => ({
+      x: snapToGrid(prevRelative.x),
+      y: snapToGrid(prevRelative.y),
+    }));
 
     setDraggedRelative(undefined);
   };
@@ -106,17 +103,14 @@ const Canvas = ({ children }: { children: ReactNode }) => {
 
     if (draggedRelative === undefined) return;
 
-    relatives.forEach((relative) => {
-      if (!relative.selected && draggedRelative !== relative.id) return;
-      updateRelative(
-        relative.id,
-        (prevRelative) => ({
-          x: clamp(0, prevRelative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
-          y: clamp(0, prevRelative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
-        }),
-        { debounce: false },
-      );
-    });
+    const relativesToUpdate = relatives
+      .filter((relative) => relative.selected || draggedRelative === relative.id)
+      .map((relative) => relative.id);
+
+    updateRelative(relativesToUpdate, (prevRelative) => ({
+      x: clamp(0, prevRelative.x + e.movementX / canvasZoom, CANVAS_WIDTH),
+      y: clamp(0, prevRelative.y + e.movementY / canvasZoom, CANVAS_HEIGHT),
+    }));
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {

@@ -5,7 +5,7 @@ import { Ban } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { createConnectionBackend } from '@/apiRoutes/connections';
-import { updateRelativeBackend } from '@/apiRoutes/relatives';
+import { updateRelativeBackend, updateRelativesBackend } from '@/apiRoutes/relatives';
 import { connectionIncludesId } from '@/lib/utils';
 import { ConnectionSource, ConnectionType, RelativeNodeType } from '@/types/types';
 
@@ -94,33 +94,37 @@ export const withOnErrorToast = <T extends (...args: any[]) => any>(fn: T) => {
 export const useUpdateRelative = () => {
   const [, setRelatives] = useAtom(relativesAtom);
 
-  const backendUpdate = (relative: RelativeNodeType) => withOnErrorToast(updateRelativeBackend)(relative);
+  // const backendUpdate = (relative: RelativeNodeType) => withOnErrorToast(updateRelativeBackend)(relative);
 
   const updateRelativeBackendDebounce = useDebounce((relative: RelativeNodeType) => {
-    backendUpdate(relative);
+    withOnErrorToast(updateRelativeBackend)(relative);
+  }, 300);
+  const updateRelativesBackendDebounce = useDebounce((relatives: RelativeNodeType[]) => {
+    withOnErrorToast(updateRelativesBackend)(relatives);
   }, 300);
 
   const setRelativesWithBackendFetch = (
-    id: string,
+    id: string | string[],
     updateRelativeCallback: (prevRelative: RelativeNodeType) => Partial<RelativeNodeType>,
-    options: {
-      debounce?: boolean;
-    } = { debounce: true },
   ) => {
+    const updatedRelatives: RelativeNodeType[] = [];
     setRelatives((prev) => {
       return prev.map((relative) => {
-        if (relative.id === id) {
+        const shouldUpdate = typeof id === 'string' ? relative.id === id : id.includes(relative.id);
+        if (shouldUpdate) {
           const updatedRelative: RelativeNodeType = {
             ...relative,
             ...updateRelativeCallback(relative),
           };
-          if (options.debounce) updateRelativeBackendDebounce(updatedRelative);
-          else backendUpdate(updatedRelative);
+          updatedRelatives.push(updatedRelative);
           return updatedRelative;
         }
         return relative;
       });
     });
+
+    if (updatedRelatives.length > 1) updateRelativesBackendDebounce(updatedRelatives);
+    if (updatedRelatives.length === 1) updateRelativeBackendDebounce(updatedRelatives[0]);
   };
   return setRelativesWithBackendFetch;
 };

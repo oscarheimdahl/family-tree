@@ -188,10 +188,10 @@ export const ProfileImage = () => {
   const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
 
   return (
-    <div className="group absolute -top-12 left-1/2 grid size-24 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-slate-800 ring ring-white [&>*]:[grid-area:1/1]">
+    <div className="group pointer-events-none absolute -top-12 left-1/2 grid size-24 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-slate-800 ring ring-white [&>*]:[grid-area:1/1]">
       <Image alt="relative" width={96} height={96} src={profileImage}></Image>
       {selectedTool === 'edit' && (
-        <button className="hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex">
+        <button className="pointer-events-auto hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex">
           <Edit size={32} />
         </button>
       )}

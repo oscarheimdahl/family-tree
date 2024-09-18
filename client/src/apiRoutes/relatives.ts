@@ -9,6 +9,14 @@ export async function updateRelativeBackend(relative: RelativeNodeType) {
   if (!res.ok) throw new Error();
 }
 
+export async function updateRelativesBackend(relatives: RelativeNodeType[]) {
+  const res = await fetch(`${BACKEND}/api/relatives`, {
+    method: 'PUT',
+    body: JSON.stringify(relatives),
+  });
+  if (!res.ok) throw new Error();
+}
+
 export async function createRelativeBackend(newRelative: RelativeNodeType) {
   const res = await fetch(`${BACKEND}/api/relatives`, {
     method: 'POST',

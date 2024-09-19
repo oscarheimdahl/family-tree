@@ -6,7 +6,7 @@ export type Context = {
   req: Request;
   responseHeaders: Headers;
 };
-
+//
 function setOrigin(origin: string | null) {
   const allowedOrigins = [
     'http://localhost:4333',

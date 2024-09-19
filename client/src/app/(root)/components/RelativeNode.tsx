@@ -10,6 +10,14 @@ import { deleteRelativeBackend, updateRelativeImageBackend } from '@/apiRoutes/r
 import fallbackProfileImage from '@/assets/profile.png';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
@@ -215,7 +223,26 @@ export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; ima
         'group absolute -top-12 left-1/2 grid size-24 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-slate-800 ring ring-white [&>*]:[grid-area:1/1]',
       )}
     >
-      <Image draggable={false} alt="relative" width={96} height={96} src={shownImage ?? fallbackProfileImage}></Image>
+      <Dialog>
+        <DialogTrigger className="group" disabled={selectedTool === 'edit'}>
+          <Image
+            draggable={false}
+            alt="relative"
+            fill
+            className="object-cover"
+            src={shownImage ?? fallbackProfileImage}
+          ></Image>
+        </DialogTrigger>
+        <DialogContent className="flex h-fit w-fit justify-center overflow-hidden rounded-md p-0 ring ring-white [&>button]:hidden">
+          <Image
+            draggable={false}
+            alt="relative"
+            width={400}
+            height={400}
+            src={shownImage ?? fallbackProfileImage}
+          ></Image>
+        </DialogContent>
+      </Dialog>
       {selectedTool === 'edit' && (
         <button
           onClick={handleButtonClick}

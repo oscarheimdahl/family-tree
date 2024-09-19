@@ -224,7 +224,10 @@ export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; ima
       )}
     >
       <Dialog>
-        <DialogTrigger className="group" disabled={selectedTool === 'edit'}>
+        <DialogTrigger
+          className={cn('group', selectedTool === 'edit' && 'pointer-events-none')}
+          disabled={selectedTool === 'edit'}
+        >
           <Image
             draggable={false}
             alt="relative"
@@ -246,7 +249,7 @@ export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; ima
       {selectedTool === 'edit' && (
         <button
           onClick={handleButtonClick}
-          className="pointer-events-auto hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex"
+          className="pointer-events-auto z-10 hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex"
         >
           <Edit size={32} />
         </button>

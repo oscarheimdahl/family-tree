@@ -85,7 +85,7 @@ const Canvas = ({ children }: { children: ReactNode }) => {
     if (canvasRef.current === null) return;
 
     const delta = e.deltaY;
-    const scaleAmount = 0.1;
+    const scaleAmount = 0.01;
     const newCanvasZoom = delta < 0 ? canvasZoom + scaleAmount : canvasZoom - scaleAmount;
 
     zoomOnPoint(newCanvasZoom, pageMousePosition);

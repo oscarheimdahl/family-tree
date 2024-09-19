@@ -33,6 +33,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html className="dark" lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Provider>
           <Providers>{children}</Providers>

@@ -1,5 +1,5 @@
 import { connectionsHandlers } from './routes/connectionsHandlers.ts';
-import { imagesHandlers } from './routes/imageHandlers.ts';
+
 import { relativesHandlers } from './routes/relativesHandlers.ts';
 
 export type Context = {
@@ -40,7 +40,6 @@ Deno.serve({ port: 4334 }, async (req): Promise<Response> => {
   if (path.at(1) === 'api') {
     if (path.at(2) === 'relatives') return await relativesHandlers(ctx);
     if (path.at(2) === 'connections') return await connectionsHandlers(ctx);
-    if (path.at(2) === 'images') return await imagesHandlers(ctx);
   }
 
   return new Response('Not found', {

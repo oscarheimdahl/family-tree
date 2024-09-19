@@ -6,6 +6,7 @@ export type RelativeNodeType = {
   description?: string;
   birthYear: number;
   selected?: boolean;
+  imageUrl?: string;
 };
 
 // The source is either from a node to another (couple) or from two parents to a child

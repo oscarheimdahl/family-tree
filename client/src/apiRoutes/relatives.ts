@@ -31,3 +31,16 @@ export async function deleteRelativeBackend(relativeId: string) {
   });
   if (!res.ok) throw new Error();
 }
+
+export async function updateRelativeImageBackend(relativeId: string, image: File) {
+  const formData = new FormData();
+  formData.append('file', image);
+
+  const res = await fetch(`${BACKEND}/api/relatives/${relativeId}/image`, {
+    method: 'PUT',
+    body: formData,
+  });
+  if (!res.ok) throw new Error();
+  const data = await res.json();
+  return data;
+}

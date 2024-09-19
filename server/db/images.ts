@@ -9,10 +9,23 @@ const supabase = createClient(
 
 const relativesBucket = supabase.storage.from('relatives');
 
-export async function uploadRelativeImage(image: File) {
-  const res = await relativesBucket.upload('img', image);
+export async function uploadRelativeImage(
+  image: ReadableStream<Uint8Array>,
+  mediaType: string,
+  relativeId: string
+) {
+  const res = await relativesBucket.upload(
+    `${relativeId}/profile.${mediaType}`,
+    image,
+    {
+      upsert: true,
+      contentType: `image/${mediaType}`,
+    }
+  );
 
   if (res.error) throw new Error(res.error.message);
 
-  return res.data.id;
+  const urlResponse = relativesBucket.getPublicUrl(res.data.path);
+
+  return urlResponse.data.publicUrl;
 }

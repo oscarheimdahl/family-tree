@@ -1,19 +1,20 @@
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 
 import { useAtom } from 'jotai';
 import { Cable, Edit, Trash, X } from 'lucide-react';
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 import { deleteConnectionBackend } from '@/apiRoutes/connections';
-import { deleteRelativeBackend } from '@/apiRoutes/relatives';
-import profileImage from '@/assets/profile.png';
+import { deleteRelativeBackend, updateRelativeImageBackend } from '@/apiRoutes/relatives';
+import fallbackProfileImage from '@/assets/profile.png';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { cn, connectionIncludesId } from '@/lib/utils';
-import { useFinalizeConnection, useUpdateRelative, withOnErrorToast } from '@/store/hooks';
+import { errorToast, useFinalizeConnection, useUpdateRelative, withOnErrorToast } from '@/store/hooks';
 import {
   connectionsAtom,
   draggedRelativeAtom,
@@ -26,7 +27,7 @@ import { type RelativeNodeType } from '@/types/types';
 export const CARD_WIDTH = 250;
 
 export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType }) => {
-  const { id, x, y, name, description, birthYear, selected } = relativeNode;
+  const { id, x, y, name, description, birthYear, selected, imageUrl } = relativeNode;
   const [newConnectionSource] = useAtom(newConnectionSourceAtom);
   const [, setDraggedRelative] = useAtom(draggedRelativeAtom);
   const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
@@ -70,7 +71,7 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
             newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-orange-300 hover:ring',
           )}
         >
-          <ProfileImage />
+          <ProfileImage imageUrl={imageUrl} relativeId={id} />
           {selectedTool === 'edit' ? (
             <>
               <Input
@@ -184,17 +185,52 @@ const DeleteButton = ({ id }: { id: string }) => {
   );
 };
 
-export const ProfileImage = () => {
-  const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
+const MB = 1024 * 1024;
+export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; imageUrl: string | undefined }) => {
+  const [selectedTool] = useAtom(selectedToolAtom);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [shownImage, setShownImage] = useState<string | undefined>(imageUrl);
+
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    if (file.size > MB) {
+      return errorToast('Image too large, max 1 MB');
+    }
+    const newImageURL = URL.createObjectURL(file);
+    setShownImage(newImageURL);
+
+    const res = await withOnErrorToast(updateRelativeImageBackend)(relativeId, file);
+
+    console.log(res);
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
-    <div className="group pointer-events-none absolute -top-12 left-1/2 grid size-24 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-slate-800 ring ring-white [&>*]:[grid-area:1/1]">
-      <Image alt="relative" width={96} height={96} src={profileImage}></Image>
+    <div
+      className={cn(
+        'group absolute -top-12 left-1/2 grid size-24 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-slate-800 ring ring-white [&>*]:[grid-area:1/1]',
+      )}
+    >
+      <Image draggable={false} alt="relative" width={96} height={96} src={shownImage ?? fallbackProfileImage}></Image>
       {selectedTool === 'edit' && (
-        <button className="pointer-events-auto hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex">
+        <button
+          onClick={handleButtonClick}
+          className="pointer-events-auto hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex"
+        >
           <Edit size={32} />
         </button>
       )}
+      <input
+        type="file"
+        accept="image/png, image/jpeg"
+        style={{ display: 'none' }}
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+      />
     </div>
   );
 };

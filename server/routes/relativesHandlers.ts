@@ -9,17 +9,22 @@ import {
 import { c } from '../index.ts';
 
 import { Context } from '../index.ts';
+import { updateRelativeImageHandler } from './imageHandlers.ts';
 
 export async function relativesHandlers(ctx: Context) {
   const url = new URL(ctx.req.url);
   const path = url.pathname.split('/');
-  const route = path.at(3);
-  if (route === 'image') {
-    if (ctx.req.method === 'PUT') return await updateRelativeImageHandler(ctx);
-  }
-  if (route) {
-    if (ctx.req.method === 'DELETE')
-      return await deleteRelativeHandler(ctx, route);
+  const id = path.at(3);
+  const imageRoute = path.at(4);
+  if (id) {
+    if (imageRoute === 'image') {
+      if (ctx.req.method === 'PUT') {
+        return await updateRelativeImageHandler(ctx);
+      }
+    }
+    if (ctx.req.method === 'DELETE') {
+      return await deleteRelativeHandler(ctx, id);
+    }
   }
   if (ctx.req.method === 'GET') return await getRelativesHandler(ctx);
   if (ctx.req.method === 'POST') return await postRelativeHandler(ctx);
@@ -132,24 +137,5 @@ async function updateRelativeHandler(ctx: Context) {
       headers: ctx.responseHeaders,
     });
   }
-  return new Response(null, { status: 204, headers: ctx.responseHeaders });
-}
-
-async function updateRelativeImageHandler(ctx: Context) {
-  const contentType = ctx.req.headers.get('content-type')!;
-  const boundary = contentType.split('boundary=')[1];
-
-  if (ctx.req.body === null) {
-    return new Response('No body', {
-      status: 400,
-      headers: ctx.responseHeaders,
-    });
-  }
-  // // Use MultipartReader to read the body
-  // const form = new MultipartReader(ctx.req.body, boundary);
-  // const formData = await form.readForm();
-
-  // // Get the image file from the form data (assuming it's named 'image')
-  // const image = formData.file('image');
   return new Response(null, { status: 204, headers: ctx.responseHeaders });
 }

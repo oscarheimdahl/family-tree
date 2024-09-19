@@ -8,6 +8,7 @@ export const relativeSchema = z.object({
   x: z.number(),
   y: z.number(),
   birthYear: z.number(),
+  imageUrl: z.string().optional(),
 });
 
 export type Relative = z.infer<typeof relativeSchema>;

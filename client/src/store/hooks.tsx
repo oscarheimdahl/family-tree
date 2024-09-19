@@ -81,14 +81,18 @@ export const withOnErrorToast = <T extends (...args: any[]) => any>(fn: T) => {
     try {
       return await fn(...args);
     } catch (e) {
-      toast.error('Unable to sync', {
-        style: {
-          border: '1px solid #7f0e2a',
-          backgroundColor: '#000000',
-        },
-      });
+      errorToast('Unable to sync');
     }
   };
+};
+
+export const errorToast = (message: string) => {
+  toast.error(message, {
+    style: {
+      border: '1px solid #7f0e2a',
+      backgroundColor: '#000000',
+    },
+  });
 };
 
 export const useUpdateRelative = () => {

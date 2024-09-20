@@ -95,7 +95,7 @@ export const Connection = ({ fromId, toId }: { fromId: ConnectionSource; toId: s
 
   return (
     <>
-      <Line onClick={onClick} hoverStyle={hoverStyle} x1={midPoint.x} y1={midPoint.y} x2={to.x} y2={to.y} />
+      <Line curve onClick={onClick} hoverStyle={hoverStyle} x1={midPoint.x} y1={midPoint.y} x2={to.x} y2={to.y} />
     </>
   );
 };

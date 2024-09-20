@@ -1,7 +1,4 @@
-import { useAtom } from 'jotai';
-
 import { cn } from '@/lib/utils';
-import { selectedToolAtom } from '@/store/store';
 
 export const Line = ({
   x1,
@@ -11,6 +8,7 @@ export const Line = ({
   onClick,
   hoverStyle,
   className,
+  curve,
 }: {
   x1: number;
   y1: number;
@@ -19,7 +17,65 @@ export const Line = ({
   onClick?: () => void;
   hoverStyle?: 'delete' | 'connect';
   className?: string;
+  curve?: boolean;
 }) => {
+  const childBelow = y2 > y1;
+  const direction = childBelow ? 1 : -1;
+
+  const firstBezierStopX = x1;
+  const firstBezierStopY = y1 + 400 * direction;
+  const secondBezierStopX = x2;
+  const secondBezierStopY = y2 - 400 * direction;
+
+  const path = `M ${x1} ${y1 + 100 * direction} C ${firstBezierStopX} ${firstBezierStopY}, ${secondBezierStopX} ${secondBezierStopY}, ${x2} ${y2}`;
+
+  const anchorLineEnd = y1 + 100 * direction;
+
+  if (curve)
+    return (
+      <svg className="pointer-events-none absolute left-0 top-0 h-full w-full">
+        <g className="group">
+          {/* Anchor line */}
+          <line
+            className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
+            strokeLinecap="round"
+            strokeWidth={5}
+            x1={x1}
+            y1={y1}
+            x2={x1}
+            y2={anchorLineEnd}
+          />
+          {/* hover outline */}
+          <path
+            className={cn('stroke-transparent', hoverStyle === 'delete' && 'group-hover:stroke-black')}
+            strokeDasharray={hoverStyle === 'delete' ? '5' : ''}
+            fill="transparent"
+            stroke="red"
+            strokeWidth={12}
+            d={path}
+          />
+          {/* visual line */}
+
+          <path
+            className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
+            strokeLinecap="round"
+            strokeWidth={5}
+            d={path}
+            stroke="black"
+            fill="transparent"
+          />
+          {/* pointer capture */}
+          <path
+            fill="transparent"
+            className={cn('pointer-events-auto', 'cursor-pointer')}
+            onClick={onClick}
+            stroke={'transparent'}
+            strokeWidth={25}
+            d={path}
+          />
+        </g>
+      </svg>
+    );
   return (
     <svg className="pointer-events-none absolute left-0 top-0 h-full w-full">
       <g className="group">

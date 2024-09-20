@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useRef, WheelEvent, type MouseEvent } from 'react';
+import { ReactNode, useEffect, useRef, WheelEvent, type MouseEvent } from 'react';
 
 import { useAtom } from 'jotai';
 
@@ -20,7 +20,52 @@ import {
   selectStartPositionAtom,
 } from '@/store/store';
 
+const useSaveCanvasPosition = () => {
+  const [canvasOffset] = useAtom(canvasOffsetAtom);
+  const [canvasZoom] = useAtom(canvasZoomAtom);
+
+  const disabledRef = useRef(true);
+  useEffect(() => {
+    setTimeout(() => {
+      disabledRef.current = false;
+    });
+  });
+
+  useEffect(() => {
+    if (disabledRef.current) return;
+    localStorage.setItem('canvasZoom', JSON.stringify(canvasZoom));
+  }, [canvasZoom]);
+
+  useEffect(() => {
+    if (disabledRef.current) return;
+    localStorage.setItem('canvasOffset', JSON.stringify(canvasOffset));
+  }, [canvasOffset]);
+};
+
+const useLoadCanvasPosition = () => {
+  const [, setCanvasOffset] = useAtom(canvasOffsetAtom);
+  const [, setCanvasZoom] = useAtom(canvasZoomAtom);
+
+  useEffect(() => {
+    const canvasOffsetString = localStorage.getItem('canvasOffset');
+    if (canvasOffsetString) {
+      const canvasOffset = JSON.parse(canvasOffsetString);
+      setCanvasOffset(canvasOffset);
+    }
+  }, []);
+
+  useEffect(() => {
+    const canvasZoomString = localStorage.getItem('canvasZoom');
+    if (canvasZoomString) {
+      const canvasZoom = JSON.parse(canvasZoomString);
+      setCanvasZoom(canvasZoom);
+    }
+  }, []);
+};
+
 export const CanvasContainer = ({ children }: { children: ReactNode }) => {
+  useSaveCanvasPosition();
+  useLoadCanvasPosition();
   const [draggingCanvas, setDraggingCanvas] = useAtom(draggingCanvasAtom);
   const [, setCanvasOffset] = useAtom(canvasOffsetAtom);
 
@@ -85,7 +130,7 @@ const Canvas = ({ children }: { children: ReactNode }) => {
     if (canvasRef.current === null) return;
 
     const delta = e.deltaY;
-    const scaleAmount = 0.01;
+    const scaleAmount = 0.02;
     const newCanvasZoom = delta < 0 ? canvasZoom + scaleAmount : canvasZoom - scaleAmount;
 
     zoomOnPoint(newCanvasZoom, pageMousePosition);
@@ -139,7 +184,7 @@ const Canvas = ({ children }: { children: ReactNode }) => {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
-      className="rounded-sm bg-slate-900 ring ring-[#ffffff]"
+      className="rounded-sm bg-slate-800 ring ring-[#ffffff]"
       style={{
         width: `${CANVAS_WIDTH}px`,
         height: `${CANVAS_HEIGHT}px`,

@@ -18,6 +18,11 @@ export const Connection = ({ fromId, toId }: { fromId: ConnectionSource; toId: s
   let hoverStyle: 'connect' | 'delete' | undefined = undefined;
   let onClick = undefined;
 
+  const getMidPoint = (point1: { x: number; y: number }, point2: { x: number; y: number }) => ({
+    x: (point1.x + point2.x) / 2,
+    y: (point1.y + point2.y) / 2,
+  });
+
   if (selectedTool === 'edit') {
     hoverStyle = 'delete';
 
@@ -62,9 +67,20 @@ export const Connection = ({ fromId, toId }: { fromId: ConnectionSource; toId: s
       };
     }
 
+    const midPoint = getMidPoint(to, from);
+
     return (
       <>
-        <Line hoverStyle={hoverStyle} x1={from.x} y1={from.y} x2={to.x} y2={to.y} onClick={onClick} />
+        <Line hoverStyle={hoverStyle} x1={from.x} y1={from.y} x2={midPoint.x} y2={midPoint.y} onClick={onClick} />
+        <Line
+          // className="stroke-orange-300"
+          hoverStyle={hoverStyle}
+          x1={midPoint.x}
+          y1={midPoint.y}
+          x2={to.x}
+          y2={to.y}
+          onClick={onClick}
+        />
       </>
     );
   }
@@ -75,14 +91,11 @@ export const Connection = ({ fromId, toId }: { fromId: ConnectionSource; toId: s
 
   if (!parent1 || !parent2 || !to) return null;
 
-  const from = {
-    x: (parent1.x + parent2.x) / 2,
-    y: (parent1.y + parent2.y) / 2,
-  };
+  const midPoint = getMidPoint(parent1, parent2);
 
   return (
     <>
-      <Line onClick={onClick} hoverStyle={hoverStyle} x1={from.x} y1={from.y} x2={to.x} y2={to.y} />
+      <Line onClick={onClick} hoverStyle={hoverStyle} x1={midPoint.x} y1={midPoint.y} x2={to.x} y2={to.y} />
     </>
   );
 };

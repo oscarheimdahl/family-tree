@@ -10,6 +10,7 @@ export const Line = ({
   y2,
   onClick,
   hoverStyle,
+  className,
 }: {
   x1: number;
   y1: number;
@@ -17,6 +18,7 @@ export const Line = ({
   y2: number;
   onClick?: () => void;
   hoverStyle?: 'delete' | 'connect';
+  className?: string;
 }) => {
   return (
     <svg className="pointer-events-none absolute left-0 top-0 h-full w-full">
@@ -37,7 +39,7 @@ export const Line = ({
         />
         {/* visual line */}
         <line
-          className={cn('stroke-orange-300', hoverStyle === 'delete' && 'group-hover:stroke-slate-700')}
+          className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
           strokeLinecap="round"
           strokeWidth={5}
           x1={x1}

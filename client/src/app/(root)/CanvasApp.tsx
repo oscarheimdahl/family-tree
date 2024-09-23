@@ -8,6 +8,7 @@ import { ConnectionType, RelativeNodeType } from '@/types/types';
 
 import { CanvasContainer } from './components/Canvas';
 import { Connection } from './components/Connection';
+import { HoveredRelative } from './components/HoveredRelative';
 import { NewConnectionLine } from './components/NewConnectionLine';
 import { RelativeNode } from './components/RelativeNode';
 import { SelectRect } from './components/SelectRect';
@@ -40,6 +41,7 @@ export const CanvasApp = ({
         <Relatives />
         <SelectRect />
       </CanvasContainer>
+      <HoveredRelative />
       {/* <Cursor /> */}
       <Tools />
       <Zoom />

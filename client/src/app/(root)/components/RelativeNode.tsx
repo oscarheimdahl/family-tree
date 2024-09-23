@@ -1,23 +1,15 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { useAtom } from 'jotai';
 import { Cable, Edit, Trash, X } from 'lucide-react';
 import Image from 'next/image';
-import { toast } from 'sonner';
 
 import { deleteConnectionBackend } from '@/apiRoutes/connections';
 import { deleteRelativeBackend, updateRelativeImageBackend } from '@/apiRoutes/relatives';
 import fallbackProfileImage from '@/assets/profile.png';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,6 +18,8 @@ import { errorToast, useFinalizeConnection, useUpdateRelative, withOnErrorToast 
 import {
   connectionsAtom,
   draggedRelativeAtom,
+  hideHoveredRelativeTimeoutRefAtom,
+  hoveredRelativeAtom,
   newConnectionSourceAtom,
   relativesAtom,
   selectedToolAtom,
@@ -38,7 +32,9 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
   const { id, x, y, name, description, birthYear, selected, imageUrl } = relativeNode;
   const [newConnectionSource] = useAtom(newConnectionSourceAtom);
   const [, setDraggedRelative] = useAtom(draggedRelativeAtom);
+  const [, setHoveredRelative] = useAtom(hoveredRelativeAtom);
   const [selectedTool, setSelectedTool] = useAtom(selectedToolAtom);
+  const [hideHoveredRelativeTimeoutRef, setHideHoveredRelativeTimeoutRef] = useAtom(hideHoveredRelativeTimeoutRefAtom);
   const updateRelative = useUpdateRelative();
 
   const finalizeConnection = useFinalizeConnection();
@@ -61,9 +57,20 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
 
   return (
     <div
+      onMouseEnter={() => {
+        if (hideHoveredRelativeTimeoutRef) {
+          clearTimeout(hideHoveredRelativeTimeoutRef);
+          setHideHoveredRelativeTimeoutRef(undefined);
+        }
+        setHoveredRelative(relativeNode.id);
+      }}
+      onMouseLeave={() => {
+        const timeout = setTimeout(() => setHoveredRelative(undefined), 5000);
+        setHideHoveredRelativeTimeoutRef(timeout);
+      }}
       onMouseDown={() => setDraggedRelative(id)}
       style={{ transform: `translate(${x}px, ${y}px)`, width: CARD_WIDTH }}
-      className={`absolute z-20`}
+      className="absolute"
     >
       <div className="animate-appear">
         <Card
@@ -121,9 +128,6 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
               {description || <span className="opacity-50">Description</span>}
             </p>
           )}
-          {/* <p>
-            x:{removeDecimals(x)} y:{removeDecimals(y)}
-          </p> */}
           <NewConnectionSourceButton id={id} />
           <DeleteButton id={id} />
         </Card>
@@ -208,9 +212,7 @@ export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; ima
     const newImageURL = URL.createObjectURL(file);
     setShownImage(newImageURL);
 
-    const res = await withOnErrorToast(updateRelativeImageBackend)(relativeId, file);
-
-    console.log(res);
+    withOnErrorToast(updateRelativeImageBackend)(relativeId, file);
   };
 
   const handleButtonClick = () => {
@@ -237,6 +239,7 @@ export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; ima
           ></Image>
         </DialogTrigger>
         <DialogContent className="flex h-fit w-fit justify-center overflow-hidden rounded-md p-0 ring ring-white [&>button]:hidden">
+          <DialogTitle className="opacity-0">Image</DialogTitle>
           <Image
             draggable={false}
             alt="relative"

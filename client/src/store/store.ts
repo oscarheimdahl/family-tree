@@ -17,3 +17,5 @@ export const connectionsAtom = atom<ConnectionType[]>([]);
 export const relativesAtom = atom<RelativeNodeType[]>([]);
 export const draggedRelativeAtom = atom<string | undefined>(undefined);
 export const draggingCanvasAtom = atom(false);
+export const hoveredRelativeAtom = atom<string | undefined>(undefined);
+export const hideHoveredRelativeTimeoutRefAtom = atom<NodeJS.Timeout | undefined>(undefined);

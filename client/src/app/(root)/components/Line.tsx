@@ -19,6 +19,7 @@ export const Line = ({
   className?: string;
   curve?: boolean;
 }) => {
+  const lineWidth = 12;
   const childBelow = y2 > y1;
   const direction = childBelow ? 1 : -1;
 
@@ -39,7 +40,7 @@ export const Line = ({
           <line
             className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
             strokeLinecap="round"
-            strokeWidth={5}
+            strokeWidth={lineWidth}
             x1={x1}
             y1={y1}
             x2={x1}
@@ -59,7 +60,7 @@ export const Line = ({
           <path
             className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
             strokeLinecap="round"
-            strokeWidth={5}
+            strokeWidth={lineWidth}
             d={path}
             stroke="black"
             fill="transparent"
@@ -97,7 +98,7 @@ export const Line = ({
         <line
           className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
           strokeLinecap="round"
-          strokeWidth={5}
+          strokeWidth={lineWidth}
           x1={x1}
           x2={x2}
           y1={y1}

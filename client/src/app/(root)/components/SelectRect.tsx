@@ -20,7 +20,7 @@ export const SelectRect = () => {
     <svg className="pointer-events-none absolute left-0 top-0 h-full w-full">
       <rect
         fill="transparent"
-        stroke="#ffffffaa"
+        stroke="black"
         strokeDasharray={'5 10'}
         strokeWidth={1 + window.innerWidth / zoom / 2000}
         x={right ? mousePosition.x : selectStartPosition.x}

@@ -89,8 +89,9 @@ export const withOnErrorToast = <T extends (...args: any[]) => any>(fn: T) => {
 export const errorToast = (message: string) => {
   toast.error(message, {
     style: {
-      border: '1px solid #7f0e2a',
-      backgroundColor: '#000000',
+      border: '1px solid #d01013',
+      backgroundColor: 'white',
+      color: 'black',
     },
   });
 };

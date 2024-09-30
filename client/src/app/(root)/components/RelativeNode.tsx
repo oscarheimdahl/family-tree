@@ -79,7 +79,7 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
             finalizeConnection(id);
           }}
           className={cn(
-            'border-1 pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 bg-gray-50 p-2 pt-20 shadow-md',
+            'border-1 pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 bg-white p-2 pt-20 shadow-md',
             selectedTool === 'edit' && 'cursor-auto',
             selected && 'ring ring-slate-800',
             newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-slate-800 hover:ring',
@@ -150,7 +150,7 @@ const NewConnectionSourceButton = ({ id }: { id: string }) => {
         if (newConnectionSource) setNewConnectionSource(undefined);
         else setNewConnectionSource(id);
       }}
-      className="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 p-2"
+      className="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 bg-orange-400 p-2 text-white shadow-md"
     >
       {connectionStartedFromThisNode ? <X /> : <Cable />}
     </Button>

@@ -84,8 +84,11 @@ export const CanvasContainer = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} className="h-full w-full overflow-hidden bg-gray-950">
-      <Canvas>{children}</Canvas>
+    <div onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} className="h-full w-full overflow-hidden bg-white">
+      <Canvas>
+        {/* <GenerationLines /> */}
+        {children}
+      </Canvas>
     </div>
   );
 };
@@ -184,15 +187,15 @@ const Canvas = ({ children }: { children: ReactNode }) => {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
-      className="rounded-sm bg-slate-800 ring ring-[#ffffff]"
+      className="gradient rounded-sm ring ring-slate-800"
       style={{
         width: `${CANVAS_WIDTH}px`,
         height: `${CANVAS_HEIGHT}px`,
         transform: `translate(${offset.x}px, ${offset.y}px) scale(${canvasZoom})`,
         transformOrigin: '0 0',
-        backgroundSize: '100px 100px',
-        backgroundImage: `linear-gradient(to right, #ffffff11 1px, transparent 1px),
-          linear-gradient(to bottom, #ffffff11 1px, transparent 1px)`,
+        // backgroundSize: '100px 100px',
+        // backgroundImage: `linear-gradient(to right, #1e293b33 1px, transparent 1px),
+        //   linear-gradient(to bottom, #1e293b33 1px, transparent 1px)`,
       }}
     >
       {children}

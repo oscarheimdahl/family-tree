@@ -1,20 +1,17 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent } from 'react';
 
 import { useAtom } from 'jotai';
-import { Cable, Edit, Trash, X } from 'lucide-react';
-import Image from 'next/image';
+import { Cable, Trash, X } from 'lucide-react';
 
 import { deleteConnectionBackend } from '@/apiRoutes/connections';
-import { deleteRelativeBackend, updateRelativeImageBackend } from '@/apiRoutes/relatives';
-import fallbackProfileImage from '@/assets/profile.png';
+import { deleteRelativeBackend } from '@/apiRoutes/relatives';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { cn, connectionIncludesId } from '@/lib/utils';
-import { errorToast, useFinalizeConnection, useUpdateRelative, withOnErrorToast } from '@/store/hooks';
+import { useFinalizeConnection, useUpdateRelative, withOnErrorToast } from '@/store/hooks';
 import {
   connectionsAtom,
   draggedRelativeAtom,
@@ -25,6 +22,8 @@ import {
   selectedToolAtom,
 } from '@/store/store';
 import { type RelativeNodeType } from '@/types/types';
+
+import { ProfileImage } from './ProfileImage';
 
 export const CARD_WIDTH = 250;
 
@@ -80,10 +79,10 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
             finalizeConnection(id);
           }}
           className={cn(
-            'pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 bg-black p-2 pt-14',
+            'border-1 pointer-events-auto relative flex -translate-x-1/2 -translate-y-1/2 cursor-move select-none flex-col gap-2 bg-gray-50 p-2 pt-20 shadow-md',
             selectedTool === 'edit' && 'cursor-auto',
-            selected && 'ring ring-gray-400',
-            newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-orange-300 hover:ring',
+            selected && 'ring ring-slate-800',
+            newConnectionSource && newConnectionSource !== id && 'cursor-pointer ring-slate-800 hover:ring',
           )}
         >
           <ProfileImage imageUrl={imageUrl} relativeId={id} />
@@ -93,7 +92,7 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
                 placeholder="Name"
                 onMouseDown={(e) => e.stopPropagation()}
                 value={name}
-                className="text-xl font-bold"
+                className="border-black text-xl font-bold"
                 onChange={handleNameChange}
               />
               <Input
@@ -102,16 +101,14 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
                 onWheel={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
                 value={birthYear || ''}
-                className="font-bold"
+                className="border-black font-bold"
                 onChange={handlebirthYearChange}
               />
             </>
           ) : (
             <div>
-              <h1 className="text-xl font-bold">{name || <span className="opacity-50">Name</span>}</h1>
-              <h1 className="font-bold text-slate-700">
-                {birthYear || <span className="text-white opacity-50">Birthyear</span>}
-              </h1>
+              <h1 className="text-2xl font-bold">{name || <span className="opacity-50">Name</span>}</h1>
+              <h1 className="font-bold text-slate-800">{birthYear || <span className="opacity-50">Birthyear</span>}</h1>
             </div>
           )}
 
@@ -121,7 +118,8 @@ export const RelativeNode = ({ relativeNode }: { relativeNode: RelativeNodeType 
               onMouseDown={(e) => e.stopPropagation()}
               onChange={handleDescriptionChange}
               value={description}
-              className="text-base"
+              placeholder="Description"
+              className="border-black text-base"
             />
           ) : (
             <p className={cn('max-h-24 overflow-hidden text-clip')}>
@@ -194,76 +192,5 @@ const DeleteButton = ({ id }: { id: string }) => {
     >
       {<Trash />}
     </Button>
-  );
-};
-
-const MB = 1024 * 1024;
-export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; imageUrl: string | undefined }) => {
-  const [selectedTool] = useAtom(selectedToolAtom);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [shownImage, setShownImage] = useState<string | undefined>(imageUrl);
-
-  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files && event.target.files[0];
-    if (!file) return;
-    if (file.size > MB) {
-      return errorToast('Image too large, max 1 MB');
-    }
-    const newImageURL = URL.createObjectURL(file);
-    setShownImage(newImageURL);
-
-    withOnErrorToast(updateRelativeImageBackend)(relativeId, file);
-  };
-
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  return (
-    <div
-      className={cn(
-        'group absolute -top-12 left-1/2 grid size-24 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-slate-800 ring ring-white [&>*]:[grid-area:1/1]',
-      )}
-    >
-      <Dialog>
-        <DialogTrigger
-          className={cn('group', selectedTool === 'edit' && 'pointer-events-none')}
-          disabled={selectedTool === 'edit'}
-        >
-          <Image
-            draggable={false}
-            alt="relative"
-            fill
-            className="object-cover"
-            src={shownImage ?? fallbackProfileImage}
-          ></Image>
-        </DialogTrigger>
-        <DialogContent className="flex h-fit w-fit justify-center overflow-hidden rounded-md p-0 ring ring-white [&>button]:hidden">
-          <DialogTitle className="opacity-0">Image</DialogTitle>
-          <Image
-            draggable={false}
-            alt="relative"
-            width={400}
-            height={400}
-            src={shownImage ?? fallbackProfileImage}
-          ></Image>
-        </DialogContent>
-      </Dialog>
-      {selectedTool === 'edit' && (
-        <button
-          onClick={handleButtonClick}
-          className="pointer-events-auto z-10 hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex"
-        >
-          <Edit size={32} />
-        </button>
-      )}
-      <input
-        type="file"
-        accept="image/png, image/jpeg"
-        style={{ display: 'none' }}
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-      />
-    </div>
   );
 };

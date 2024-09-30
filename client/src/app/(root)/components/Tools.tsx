@@ -47,7 +47,7 @@ export const Tools = () => {
 
   return (
     <div className="absolute right-0 top-1/2 -translate-y-1/2">
-      <div className="animate-fadeInRight flex flex-col items-center gap-1 rounded-l-md border bg-black p-1 delay-200">
+      <div className="animate-fadeInRight flex flex-col items-center gap-1 rounded-l-md bg-white p-1 text-slate-800 shadow-md delay-200">
         <TooltipToggle tooltip="Add new relative">
           <Button
             onMouseLeave={() => setNewRelativesCreated(0)}
@@ -58,6 +58,7 @@ export const Tools = () => {
             <UserRoundPlus />
           </Button>
         </TooltipToggle>
+        <Separator />
         <TooltipToggle tooltip="Add Connection">
           <Toggle
             className="size-12 p-0"
@@ -67,6 +68,7 @@ export const Tools = () => {
             <Cable />
           </Toggle>
         </TooltipToggle>
+        <Separator />
         <TooltipToggle tooltip="Edit Relatives">
           <Toggle
             className="size-12 p-0"

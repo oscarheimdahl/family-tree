@@ -22,6 +22,7 @@ export const Line = ({
   const lineWidth = 12;
   const childBelow = y2 > y1;
   const direction = childBelow ? 1 : -1;
+  const lineColor = 'stroke-slate-800';
 
   const firstBezierStopX = x1;
   const firstBezierStopY = y1 + 400 * direction;
@@ -38,7 +39,7 @@ export const Line = ({
         <g className="group">
           {/* Anchor line */}
           <line
-            className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
+            className={cn(lineColor, hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
             strokeLinecap="round"
             strokeWidth={lineWidth}
             x1={x1}
@@ -58,8 +59,8 @@ export const Line = ({
           {/* visual line */}
 
           <path
-            className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
-            strokeLinecap="round"
+            className={cn(lineColor, hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
+            strokeLinecap="square"
             strokeWidth={lineWidth}
             d={path}
             stroke="black"
@@ -96,7 +97,7 @@ export const Line = ({
         />
         {/* visual line */}
         <line
-          className={cn('stroke-red-700', hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
+          className={cn(lineColor, hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
           strokeLinecap="round"
           strokeWidth={lineWidth}
           x1={x1}

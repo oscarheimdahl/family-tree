@@ -13,7 +13,7 @@ export const HoveredRelative = () => {
   if (!relative) return null;
 
   return (
-    <Card className="absolute bottom-0 right-0 m-4 flex items-center gap-4 px-4 py-2 text-white">
+    <Card className="absolute bottom-0 right-0 m-4 flex items-center gap-4 px-4 py-2 text-black">
       <div className="relative flex h-full flex-col justify-between">
         <span className="text-xl font-bold">
           {relative.name ? relative.name : <span className="opacity-50">Name</span>}
@@ -23,7 +23,7 @@ export const HoveredRelative = () => {
         </span>
       </div>
       <Image
-        className="block max-h-16 min-h-16 min-w-16 max-w-16 -translate-y-1/2 rounded-full bg-slate-800 object-cover ring ring-white"
+        className="block max-h-16 min-h-16 min-w-16 max-w-16 -translate-y-1/2 rounded-full bg-white object-cover ring ring-white"
         src={relative.imageUrl ?? fallbackProfileImage}
         alt={relative.name}
         width={64}

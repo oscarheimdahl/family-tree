@@ -36,7 +36,7 @@ export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; ima
   return (
     <div
       className={cn(
-        'group absolute -top-20 left-1/2 grid size-36 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-white shadow-md ring ring-white [&>*]:[grid-area:1/1]',
+        'group absolute -top-[4.5rem] left-1/2 grid size-36 -translate-x-1/2 place-content-center place-items-center overflow-hidden rounded-full bg-white shadow-md [&>*]:[grid-area:1/1]',
       )}
     >
       <Dialog>
@@ -66,7 +66,7 @@ export const ProfileImage = ({ relativeId, imageUrl }: { relativeId: string; ima
       {selectedTool === 'edit' && (
         <button
           onClick={handleButtonClick}
-          className="pointer-events-auto z-10 hidden h-full w-full items-center justify-center bg-black/20 group-hover:flex"
+          className="pointer-events-auto z-10 hidden h-full w-full rounded-md bg-black/20 p-4 text-white group-hover:block"
         >
           <Edit size={32} />
         </button>

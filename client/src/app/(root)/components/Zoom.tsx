@@ -19,10 +19,10 @@ export const Zoom = () => {
   return (
     <div className="animate-fadeInLeft absolute bottom-0 left-0 flex flex-col items-center gap-2 p-4 text-black delay-200">
       <span className="text-sm">{roundNumberTo2Decimals(zoom)}%</span>
-      <Button variant={'ghost'} onClick={handleZoomIn} className="border bg-white p-2 shadow-md">
+      <Button variant={'ghost'} onClick={handleZoomIn} className="border border-gray-400 bg-white p-2 shadow-md">
         <Plus />
       </Button>
-      <Button variant={'ghost'} onClick={handleZoomOut} className="border bg-white p-2 shadow-md">
+      <Button variant={'ghost'} onClick={handleZoomOut} className="border border-gray-400 bg-white p-2 shadow-md">
         <Minus />
       </Button>
     </div>

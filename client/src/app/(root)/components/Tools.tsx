@@ -47,7 +47,7 @@ export const Tools = () => {
 
   return (
     <div className="absolute right-0 top-1/2 -translate-y-1/2">
-      <div className="animate-fadeInRight flex flex-col items-center gap-1 rounded-l-md bg-white p-1 text-slate-800 shadow-md delay-200">
+      <div className="animate-fadeInRight flex flex-col items-center gap-1 rounded-l-md border border-gray-400 bg-white p-1 text-slate-800 shadow-md delay-200">
         <TooltipToggle tooltip="Add new relative">
           <Button
             onMouseLeave={() => setNewRelativesCreated(0)}

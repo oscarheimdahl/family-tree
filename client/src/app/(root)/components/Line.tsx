@@ -49,7 +49,7 @@ export const Line = ({
           />
           {/* hover outline */}
           <path
-            className={cn('stroke-transparent', hoverStyle === 'delete' && 'group-hover:stroke-black')}
+            className={cn('stroke-transparent', hoverStyle === 'delete' && 'group-hover:stroke-white')}
             strokeDasharray={hoverStyle === 'delete' ? '5' : ''}
             fill="transparent"
             stroke="red"
@@ -59,7 +59,7 @@ export const Line = ({
           {/* visual line */}
 
           <path
-            className={cn(lineColor, hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
+            className={cn(lineColor, hoverStyle === 'delete' && 'group-hover:stroke-transparent', className)}
             strokeLinecap="square"
             strokeWidth={lineWidth}
             d={path}
@@ -97,7 +97,7 @@ export const Line = ({
         />
         {/* visual line */}
         <line
-          className={cn(lineColor, hoverStyle === 'delete' && 'group-hover:stroke-slate-700', className)}
+          className={cn(lineColor, hoverStyle === 'delete' && 'group-hover:stroke-transparent', className)}
           strokeLinecap="round"
           strokeWidth={lineWidth}
           x1={x1}
